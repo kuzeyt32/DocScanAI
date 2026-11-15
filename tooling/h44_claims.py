@@ -16,6 +16,7 @@ Usage: python tooling/h44_claims.py
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import cv2
@@ -23,8 +24,11 @@ import numpy as np
 
 ASSETS = Path("app/src/androidTest/assets/owner110")
 ORACLE = ASSETS / "oracle_manifest.json"
-LANE = Path("tooling/out/h38/report_h43letter.json")
+LANE = Path(sys.argv[1] if len(sys.argv) > 1 else "tooling/out/h38/report_h44crop.json")
 OUT = Path("tooling/out/h44")
+
+sys.path.insert(0, str(Path(__file__).parent))
+from oracle_quality import reason as oracle_reason  # noqa: E402
 
 
 def page_mask(shape, quad):
@@ -63,13 +67,21 @@ def containment(inner, outer) -> float:
 
 
 def main():
-    oracle = {i["image"]: [i["corners_px"][k] for k in ("tl", "tr", "br", "bl")]
-              for i in json.loads(ORACLE.read_text(encoding="utf-8"))["items"]}
+    oracle_items = {i["image"]: i for i in
+                    json.loads(ORACLE.read_text(encoding="utf-8"))["items"]}
+    oracle = {name: [it["corners_px"][k] for k in ("tl", "tr", "br", "bl")]
+              for name, it in oracle_items.items()}
     lane = {r["image"]: r for r in json.loads(LANE.read_text(encoding="utf-8"))["rows"]}
     OUT.mkdir(parents=True, exist_ok=True)
 
     rows = []
+    skipped_oracle = []
     for name, gt in oracle.items():
+        # A collapsed/half-placed annotation gives a degenerate homography and garbage colour.
+        problem = oracle_reason(oracle_items[name])
+        if problem:
+            skipped_oracle.append((name, problem))
+            continue
         f = ASSETS / name
         img = cv2.imread(str(f), cv2.IMREAD_COLOR)
         if img is None:
@@ -100,6 +112,10 @@ def main():
              "## Claim 1: the detector misses coloured pages", "",
              "Paper colour measured INSIDE the oracle page quad (trimmed 20 %), not the whole frame.",
              "`val` is HSV brightness, so `sat` high + `val` high = tinted paper.", ""]
+
+    lines.append(f"*{len(skipped_oracle)} photos excluded: unusable oracle annotation "
+                 f"(see `tooling/oracle_quality.py`).*")
+    lines.append("")
 
     def bucket(r):
         p = r["page"]

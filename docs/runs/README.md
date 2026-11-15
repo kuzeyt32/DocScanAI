@@ -6,6 +6,7 @@ the private photo corpus. Nothing here contains image data.
 | file | what it is | source lane |
 |---|---|---|
 | [`detector-116.md`](detector-116.md) | Detector verdict over all 116 owner photos: 0.3.15 vs 0.3.16, per-photo quad measurements, corner-model blind spots | `h38_lane.cmd` + `h42_publish_runs.py` |
+| [`corner-signatures.md`](corner-signatures.md) | Which corners the returned quad actually touches (page / inner box / outside), the oracle-annotation defects, and strict IoU quality | `h39_dump.cmd` + `h45_corners.py` |
 | [`ship-0.3.16.md`](ship-0.3.16.md) | Build identity, certificate continuity, SHA-256, install/launch smoke for the published APK | `h41_ship.cmd` |
 
 Regenerate everything:

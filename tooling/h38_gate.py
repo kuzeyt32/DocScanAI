@@ -35,6 +35,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import h30_score as S  # noqa: E402  (iou_of / align_measure / polygon area)
+from oracle_quality import reason as oracle_reason
 
 OUT = os.path.join(HERE, "out", "h38")
 GT_PATH = os.path.join(HERE, "out", "h35", "pseudo_gt_asset.json")
@@ -96,14 +97,23 @@ def main():
         our_touch = bool(r.get("our_frame_touch"))
         oracle_touch = bool(r.get("oracle_frame_touch"))
 
+        # A collapsed / half-placed annotation makes IoU 0 by construction, which would both hide
+        # real detections and fabricate wrong-page/merged flags (see oracle_quality.py).
+        oreason = oracle_reason(gt_by_name.get(r["image"]))
+        scoreable = oreason is None
+
         wrong_page = bool(
-            r["detected"] and iou is not None and not math.isnan(iou)
+            scoreable and r["detected"] and iou is not None and not math.isnan(iou)
             and iou < WRONG_PAGE_IOU and our_touch and not oracle_touch
         )
         merged = bool(
-            r["detected"] and covers >= MERGED_COVER and area_ratio >= MERGED_AREA_RATIO
+            scoreable and r["detected"] and covers >= MERGED_COVER
+            and area_ratio >= MERGED_AREA_RATIO
         )
         correct_page = bool(r["detected"] and not wrong_page and not merged)
+        # The metric that actually says "the quad is the page": IoU against the oracle >= 0.5.
+        quad_ok = bool(scoreable and r["detected"] and iou is not None
+                       and not math.isnan(iou) and iou >= 0.5)
 
         rows.append({
             "image": r["image"],
@@ -117,6 +127,9 @@ def main():
             "area_ratio": area_ratio,
             "our_frame_touch": our_touch,
             "oracle_frame_touch": oracle_touch,
+            "scoreable": scoreable,
+            "oracle_problem": oreason,
+            "quad_ok": quad_ok,
             "wrong_page": wrong_page,
             "merged": merged,
             "correct_page": correct_page,
@@ -137,6 +150,10 @@ def main():
     new_rows = [r for r in rows if r["is_new"]]
     new_detected = [r for r in new_rows if r["detected"]]
     new_wrong = [r for r in new_rows if r["wrong_page"]]
+    scoreable_det = [r for r in det if r["scoreable"]]
+    quad_ok = [r for r in scoreable_det if r["quad_ok"]]
+    ious = [r["iou"] for r in scoreable_det
+            if r["iou"] is not None and not math.isnan(r["iou"])]
 
     summary = {
         "tag": args.tag,
@@ -147,11 +164,17 @@ def main():
         "no_detection": sum(1 for r in rows if not r["detected"]),
         "wrong_page": len(wrong_rows),
         "merged": len(merged_rows),
+        "scoreable": sum(1 for r in rows if r["scoreable"]),
+        "unscoreable": sum(1 for r in rows if not r["scoreable"]),
+        "quad_ok": len(quad_ok),
+        "quad_ok_rate": round(len(quad_ok) / len(scoreable_det), 4) if scoreable_det else None,
+        "mean_iou": round(sum(ious) / len(ious), 4) if ious else None,
         "new_total": len(new_rows),
         "new_detected": len(new_detected),
         "new_wrong_page": len(new_wrong),
         "new_merged": sum(1 for r in new_rows if r["merged"]),
         "new_correct_page": sum(1 for r in new_rows if r["correct_page"]),
+        "new_quad_ok": sum(1 for r in new_rows if r["quad_ok"]),
     }
 
     # --- the H38 gate ------------------------------------------------------------------
@@ -189,6 +212,12 @@ def main():
     lines.append("| no-detection               | %-50s |" % summary["no_detection"])
     lines.append("| wrong-page                 | %-50s |" % summary["wrong_page"])
     lines.append("| merged                     | %-50s |" % summary["merged"])
+    lines.append("| quad matches page (IoU>=.5) | %-50s |" % (
+        "%d / %d scoreable detections (%s)" % (
+            summary["quad_ok"], len(scoreable_det),
+            "-" if summary["quad_ok_rate"] is None else "%.0f %%" % (100 * summary["quad_ok_rate"]))))
+    lines.append("| mean IoU (scoreable)       | %-50s |" % f(summary["mean_iou"]))
+    lines.append("| unscoreable oracle annots  | %-50s |" % summary["unscoreable"])
     lines.append("| new-5 detected             | %-50s |" % gate["new_result"])
     lines.append("| new-5 correct-page         | %-50s |" % summary["new_correct_page"])
     lines.append("")

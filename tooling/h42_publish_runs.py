@@ -93,7 +93,7 @@ def build_detector_page() -> str | None:
         "",
         "## Summary",
         "",
-        "| class | 0.3.13 (`h38fixd`) | 0.3.14 (`h40relax`) | change |",
+        "| class | 0.3.15 (`h40relax`) | 0.3.16 (`h44crop`) | change |",
         "|---|---|---|---|",
     ]
     for key in ("correct", "merged", "wrong-page", "no-detection"):
@@ -105,16 +105,56 @@ def build_detector_page() -> str | None:
     a, b = sb["photos"] - cell(sb["classes"], "no-detection"), sf["photos"] - cell(sf["classes"], "no-detection")
     lines.append(f"| **detected** | {a} | {b} | {'+' if b-a > 0 else ''}{b - a} |")
 
+    # The strict metric. `correct` above only means "detected and not flagged", which is what the
+    # H38 gate counts; it says nothing about how close the quad is to the page. These two rows do.
+    def _scoreable_det(rows: list[dict]) -> list[dict]:
+        return [r for r in rows if r.get("detected") and r.get("scoreable")]
+
+    def _quad_ok(rows: list[dict]) -> int:
+        return sum(1 for r in rows if r.get("quad_ok"))
+
+    def _mean_iou(rows: list[dict]) -> float:
+        xs = [r["iou"] for r in _scoreable_det(rows) if r.get("iou") is not None]
+        return sum(xs) / len(xs) if xs else 0.0
+
+    sa, sb_ = len(_scoreable_det(base["rows"])), len(_scoreable_det(fixd["rows"]))
+    qa, qb = _quad_ok(base["rows"]), _quad_ok(fixd["rows"])
+    lines.append(f"| **quad matches page (IoU>=0.5)** | **{qa}/{sa}** | **{qb}/{sb_}** | "
+                 f"{'+' if qb - qa > 0 else ''}{qb - qa} |")
+    lines.append(f"| mean IoU (scoreable detections) | {_mean_iou(base['rows']):.3f} | "
+                 f"{_mean_iou(fixd['rows']):.3f} | - |")
+    lines.append(f"| unscoreable oracle annotations | "
+                 f"{sum(1 for r in base['rows'] if not r.get('scoreable'))} | "
+                 f"{sum(1 for r in fixd['rows'] if not r.get('scoreable'))} | - |")
+
     lines += ["", "### By provenance (detected photos only)", "",
               "| provenance | 0.3.15 | 0.3.16 |", "|---|---|---|"]
     for p in sorted(set(sb["provenance"]) | set(sf["provenance"])):
         lines.append(f"| {p} | {cell(sb['provenance'], p)} | {cell(sf['provenance'], p)} |")
 
-    lines += ["", "Classes are a **strict partition**: every photo appears once, and a photo that is",
-              "both merged and wrong-page is counted as `wrong-page`. The H38 reports quote the two",
-              "flags independently (merged 27, wrong-page 17, 10 photos carry both), which is why",
-              "the `merged` row here reads 17 - the union of bad quads is the same 34 in both",
-              "tables (17 + 17)."]
+    lines += ["", "`correct` is the H38 gate's label: **detected and not flagged** as wrong-page or",
+              "merged. It does **not** mean the quad is the page - many `correct` photos have a quad",
+              "that overshoots or clips the page. The strict metric is the",
+              "`quad matches page (IoU>=0.5)` row above.",
+              "",
+              "`wrong-page`/`merged` are evaluated only where the oracle annotation is usable.",
+              "Against a collapsed or half-placed annotation, IoU is 0 by construction and",
+              "`merged` (which needs `area_ratio >= 1.5`) is infinite, so the old reports carried",
+              "fabricated flags on those rows. See `tooling/oracle_quality.py`.",
+              ""]
+
+    # The table is a strict partition (wrong-page wins over merged); the gate quotes the two flags
+    # independently, so state both so the two tables cannot look contradictory.
+    def _flags(rows: list[dict]) -> tuple[int, int]:
+        return (sum(1 for r in rows if r.get("wrong_page")),
+                sum(1 for r in rows if r.get("merged")))
+
+    wa, ma = _flags(base["rows"])
+    wb, mb = _flags(fixd["rows"])
+    lines += [f"Rows above are a strict partition: a photo carrying both flags counts once, as",
+              f"`wrong-page`. The independent flags are **0.3.15: {wa} wrong-page / {ma} merged** "
+              f"and",
+              f"**0.3.16: {wb} wrong-page / {mb} merged**."]
 
     changed = [n for n in base_rows
                if (base_rows[n].get("prov"), base_rows[n].get("detected")) !=
@@ -136,8 +176,8 @@ def build_detector_page() -> str | None:
               "`iou` is against the pseudo-GT oracle quad; `corner %` is mean corner error as a",
               "percentage of the image diagonal. Both are lower bounds (oracle corners are hand-",
               "marked, ~5-10 % of the diagonal off on curved pages).", "",
-              "| photo | class | prov | gate | iou | corner % | area ratio | mlsd | ms |",
-              "|---|---|---|---|---|---|---|---|---|"]
+              "| photo | class | prov | gate | iou | oracle | corner % | area ratio | mlsd | ms |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
     for n in sorted(fixd_rows):
         f_ = fixd_rows[n]
         iou = f_.get("iou")
@@ -147,6 +187,7 @@ def build_detector_page() -> str | None:
             f"| `{n}` | {cls(f_)} | {f_.get('prov') or '-'} | "
             f"{'pass' if f_.get('gate_pass') else 'fail'} | "
             f"{'—' if iou is None else f'{iou:.3f}'} | "
+            f"{'ok' if f_.get('scoreable', True) else 'BAD'} | "
             f"{'—' if cp is None else f'{cp:.1f}'} | "
             f"{'—' if ar is None else f'{ar:.2f}'} | "
             f"{'yes' if f_.get('mlsd_invoked') else 'no'} | "
@@ -234,6 +275,9 @@ def main(argv: list[str]) -> int:
         "| [`detector-116.md`](detector-116.md) | Detector verdict over all 116 owner photos: "
         "0.3.15 vs 0.3.16, per-photo quad measurements, corner-model blind spots | "
         "`h38_lane.cmd` + `h42_publish_runs.py` |",
+        "| [`corner-signatures.md`](corner-signatures.md) | Which corners the returned quad actually "
+        "touches (page / inner box / outside), the oracle-annotation defects, and strict IoU quality | "
+        "`h39_dump.cmd` + `h45_corners.py` |",
         ship_row,
         "",
         "Regenerate everything:",
