@@ -57,26 +57,45 @@ class MlsdMergeRepairH32Test {
     }
 
     @Test
-    fun theWideWindowSplitsABalancedSpreadButNotAPlainPage() {
-        // The exact case H32 was built for: a REAL two-page spread puts the gutter at ~50 % of
-        // the width (measured on the real set: d=0.45..0.52), which the historical 0.45 window
-        // could never see. A spread quad MUST split there; a page-sized quad (w/h 0.709) must
-        // still refuse it — that is the "sliver is not the page itself" protection.
+    fun aBalancedSpreadIsNotSplitButAGenuineSliverIs() {
+        // OWNER RULE (2026-11-15), which REVERSES what this test asserted before.
+        //
+        // "If the 2 pages are seen and at the centre it probably means I want to use the 2 pages
+        // as 1. It is 1 page only when ... the other is maybe only seen < 25 %."
+        //
+        // So a gutter in the MIDDLE of a spread quad is no longer something to split at: the two
+        // leaves are the target, and cutting one away produces exactly the half-page scans the
+        // owner complained about. A fold may only remove a sliver smaller than a quarter of the
+        // half it keeps.
         val spread = rect(1420.0, 1000.0)
-        val gutter = seg(710.0, -50.0, 710.0, 1050.0) // exactly the middle
-        val onSpread = MlsdMergeRepair.apply(spread, listOf(gutter))
-        assertTrue("a balanced-spread gutter must be split", onSpread.applied)
-        assertEquals(0.50, onSpread.stripFrac, 0.02)
+        val balanced = MlsdMergeRepair.apply(spread, listOf(seg(710.0, -50.0, 710.0, 1050.0)))
+        assertFalse(
+            "a gutter at the middle of a spread must NOT be split: both leaves are the target",
+            balanced.applied
+        )
 
+        // A real sliver (9 % of the width, i.e. 0.099 of the kept half) is still removed.
+        val sliver = MlsdMergeRepair.apply(spread, listOf(seg(128.0, -50.0, 128.0, 1050.0)))
+        assertTrue("a 9 % sliver must still be removed", sliver.applied)
+        assertEquals(0.09, sliver.stripFrac, 0.02)
+
+        // The 25 %-of-kept-half boundary, from both sides. stripFrac 0.20 is exactly
+        // discard/keep = 0.25, so it must already be refused.
+        assertTrue(
+            "0.18 strip (discard/keep 0.22) is still a sliver",
+            MlsdMergeRepair.apply(spread, listOf(seg(255.6, -50.0, 255.6, 1050.0))).applied
+        )
+        assertFalse(
+            "0.20 strip (discard/keep 0.25) is a spread split",
+            MlsdMergeRepair.apply(spread, listOf(seg(284.0, -50.0, 284.0, 1050.0))).applied
+        )
+
+        // And a page-sized quad (w/h 0.709) must still refuse a middle fold.
         val page = rect(709.0, 1000.0)
         val onPage = MlsdMergeRepair.apply(page, listOf(seg(354.0, -50.0, 354.0, 1050.0)))
         assertFalse("a page must not be split down its own middle", onPage.applied)
 
-        // And a fold whose distance to BOTH sides exceeds every window is not a candidate at all.
-        val none = MlsdMergeRepair.apply(spread, listOf(seg(760.0, -50.0, 760.0, 1050.0)))
-        // 760/1420 = 0.535 from left, 0.465 from right -> the right side qualifies (<= 0.55), so
-        // this is still offered; the guards (strip floor, prior) decide. What must never happen
-        // is a candidate beyond BOTH windows: 0.60/0.40 — the 0.60 side is out, the 0.40 side in.
+        // A fold beyond BOTH windows is not a candidate at all.
         val folds = MlsdMergeRepair.findAllMergeLines(
             spread, listOf(seg(852.0, -50.0, 852.0, 1050.0)) // 0.60 left / 0.40 right
         )
@@ -89,16 +108,17 @@ class MlsdMergeRepairH32Test {
 
     @Test
     fun theBestScoringSplitWinsNotTheNearest() {
-        // Two folds: a NEAR text-margin line (12 %) and a REAL fold (38 %). Both qualify on a
-        // spread; the paper prior must choose the one whose kept half looks more like a page.
+        // Two folds: a NEAR margin line (8 %) and a further one (18 %). Both are slivers under the
+        // owner's 25 % rule, so both qualify; the paper prior must choose the one whose kept half
+        // looks more like a page, not simply the nearest to the edge.
         val spread = rect(1420.0, 1000.0)
-        val margin = seg(170.0, -50.0, 170.0, 1050.0)   // 12 % strip
-        val fold = seg(540.0, -50.0, 540.0, 1050.0)     // 38 % strip
+        val margin = seg(113.6, -50.0, 113.6, 1050.0)   // 8 % strip
+        val fold = seg(255.6, -50.0, 255.6, 1050.0)     // 18 % strip
         val outcome = MlsdMergeRepair.apply(spread, listOf(margin, fold))
         assertTrue(outcome.applied)
-        // The kept half after the 38 % split (1040 x 1000, w/h 1.04) scores higher than after the
-        // 12 % split (1250 x 1000, w/h 1.25 -> prior ~0.72 vs ~0.55 at the 1.41 prior).
-        assertEquals(0.38, outcome.stripFrac, 0.02)
+        // The kept half after the 18 % split (1164 x 1000, w/h 1.16) scores higher than after the
+        // 8 % split (1306 x 1000, w/h 1.31), which is still wider than a page.
+        assertEquals(0.18, outcome.stripFrac, 0.02)
     }
 
     @Test
@@ -152,7 +172,7 @@ class MlsdMergeRepairH32Test {
         // supplied the cut penalty lowers this candidate's score; the outcome must still be a
         // valid split (the exact kept side stays the area prior — the penalty only scores).
         val quad = rect(200.0, 200.0)
-        val fold = seg(70.0, -20.0, 70.0, 220.0) // 35 % strip
+        val fold = seg(30.0, -20.0, 30.0, 220.0) // 15 % strip (a sliver, not a spread split)
         val luma: (Int, Int) -> Double = { x, _ ->
             when {
                 x >= 196 -> 0.9   // paper runs off the right border
@@ -172,7 +192,7 @@ class MlsdMergeRepairH32Test {
         // isolation was measured NEUTRAL on the real set (identical rows) — the penalty is kept
         // because it is free and physically right, but it is NOT claimed as a measured win.
         val quad = rect(200.0, 200.0)
-        val fold = seg(70.0, -20.0, 70.0, 220.0) // 35 % strip -> area keeps the right half
+        val fold = seg(30.0, -20.0, 30.0, 220.0) // 15 % strip -> area keeps the right half
         val luma: (Int, Int) -> Double = { x, _ ->
             when {
                 x >= 196 -> 0.9
@@ -193,7 +213,7 @@ class MlsdMergeRepairH32Test {
     @Test
     fun theCachedKeepSideRoundTrips() {
         val spread = rect(1420.0, 1000.0)
-        val fold = seg(540.0, -50.0, 540.0, 1050.0)
+        val fold = seg(255.6, -50.0, 255.6, 1050.0) // 18 % sliver, inside the owner rule
         val outcome = MlsdMergeRepair.apply(spread, listOf(fold))
         assertTrue(outcome.applied)
         val cached = MlsdMergeRepair.fractionalOf(outcome)

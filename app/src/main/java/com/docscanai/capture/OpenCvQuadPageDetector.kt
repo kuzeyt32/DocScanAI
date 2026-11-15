@@ -14,6 +14,7 @@ import com.docscanai.ml.MlsdTrigger
 import com.docscanai.ml.OnnxModel
 import java.nio.FloatBuffer
 import kotlin.math.abs
+import kotlin.math.acos
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
@@ -2812,10 +2813,42 @@ class OpenCvQuadPageDetector(
     }
 
     /**
+     * Largest interior angle of an ordered quad, in degrees (0.0 on degenerate input).
+     *
+     * A real page photographed at any plausible angle has no interior angle anywhere near 180°.
+     * A quad that has lost a corner — the model's peak snapped onto a text block or the page
+     * centre, so the corner is dragged deep inside — is geometrically *nearly a triangle*, and
+     * that shows up as one very blunt vertex far more sharply than it shows up in area, fill or
+     * aspect. Measured on the 42-photo holdout: the four degenerate quads (called BAD in
+     * `docs/runs/holdout42-audit.md`) reach 126.8-133.2°, while every quad that was accepted on
+     * the 116-photo owner corpus stays at or below 123.2°. The gate threshold sits in that gap.
+     */
+    private fun maxInteriorAngleDeg(pts: List<Point>): Double {
+        val n = pts.size
+        if (n < 3) return 0.0
+        var worst = 0.0
+        for (i in 0 until n) {
+            val prev = pts[(i + n - 1) % n]
+            val cur = pts[i]
+            val next = pts[(i + 1) % n]
+            val v1x = (prev.x - cur.x).toDouble(); val v1y = (prev.y - cur.y).toDouble()
+            val v2x = (next.x - cur.x).toDouble(); val v2y = (next.y - cur.y).toDouble()
+            val m1 = hypot(v1x, v1y); val m2 = hypot(v2x, v2y)
+            if (m1 < 1e-6 || m2 < 1e-6) return 180.0
+            val cosA = ((v1x * v2x + v1y * v2y) / (m1 * m2)).coerceIn(-1.0, 1.0)
+            val deg = Math.toDegrees(acos(cosA))
+            if (deg > worst) worst = deg
+        }
+        return worst
+    }
+
+    /**
      * Sanity gate for a detected page quad (SUBTASK H4). Rejects:
      *  - degenerate/empty area or an area fraction outside `[MIN_QUAD_AREA_RATIO, MAX_QUAD_AREA_RATIO]`;
      *  - a min-area-rect aspect beyond [MAX_QUAD_ASPECT_RATIO] (slivers) or a tiny min-area-rect side;
      *  - low rectangularity `area / minAreaRectArea < MIN_QUAD_FILL` (crossed/self-intersecting sets);
+     *  - a blunt vertex (`maxInteriorAngleDeg > MAX_QUAD_ANGLE_DEG`), which is how a lost corner
+     *    presents — see [maxInteriorAngleDeg] for the measurements behind that threshold;
      *  - non-convex corner order;
      *  - **frame-hugging** quads (bounding box reaching every image edge) — this is precisely the
      *    "corners on the frame border" runaway mode SUBTASK H4 must eliminate. A page that genuinely
@@ -2836,6 +2869,8 @@ class OpenCvQuadPageDetector(
         val aspect = max(rw, rh) / min(rw, rh)
         if (aspect > MAX_QUAD_ASPECT_RATIO) return false
         if (area / (rw * rh).coerceAtLeast(1.0) < MIN_QUAD_FILL) return false
+
+        if (maxInteriorAngleDeg(pts) > MAX_QUAD_ANGLE_DEG) return false
 
         val cvPts = Array(4) { CvPoint(pts[it].x.toDouble(), pts[it].y.toDouble()) }
         if (!Imgproc.isContourConvex(MatOfPoint(*cvPts))) return false
@@ -3154,6 +3189,19 @@ class OpenCvQuadPageDetector(
 
         /** Minimum `area / minAreaRectArea` — rejects crossed/self-intersecting corner sets. */
         private const val MIN_QUAD_FILL = 0.30
+
+        /**
+         * Largest interior angle a page quad may have, in degrees. A quad with a lost corner is
+         * nearly a triangle and shows one very blunt vertex. Measured: the four degenerate
+         * holdout quads sit at 126.8-133.2°; every accepted quad on the 116-photo owner corpus is
+         * at or below 123.2°. The midpoint of that gap is the threshold, so it is nowhere near a
+         * boundary that real pages approach.
+         *
+         * Note `MIN_QUAD_FILL` is deliberately NOT raised to catch the same cases: fill measures
+         * 0.66-0.72 on the degenerates but goes as low as 0.637 on owner photos that are correct,
+         * so raising it would trade real detections for this fix.
+         */
+        private const val MAX_QUAD_ANGLE_DEG = 125.0
 
         // --- SUBTASK H30: M-LSD candidate gate ---------------------------------------------
         /**

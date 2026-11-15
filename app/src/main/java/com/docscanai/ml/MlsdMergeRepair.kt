@@ -81,6 +81,27 @@ object MlsdMergeRepair {
      */
     const val REPAIR_MIN_STRIP_FRAC = 0.075
 
+    /**
+     * OWNER RULE (2026-11-15) — when is the facing leaf part of the target?
+     *
+     * "I don't necessarily want only one page: if the 2 pages are seen and at the centre it
+     * probably means I want to use the 2 pages as 1. It is 1 page only when it seems that the
+     * user is trying to take one of the pages which is fully visible while the other is maybe
+     * only seen < 25 %."
+     *
+     * So a fold may only be treated as a *sliver removal* while the half it discards is under
+     * this fraction of the half it keeps. A fold that would throw away a quarter or more of the
+     * quad is not removing a sliver — it is cutting a spread in two, which is precisely what the
+     * owner does NOT want.
+     *
+     * This supersedes the earlier "detect the only page fully seen" directive that
+     * [SPREAD_MAX_STRIP_FRAC] was widened to 0.55 for. MEASURED on the 42-photo holdout: 29
+     * photos were being split, and the strip fractions fell into two clean populations —
+     * 0.4-0.5 (equal halves, i.e. a real spread being cut) and under 0.25 (a genuine sliver).
+     * The equal-half group is exactly the page-choice failure this constant removes.
+     */
+    const val SECOND_LEAF_KEEP_RATIO = 0.25
+
     /** Quad w/h in the quad's own axes (a spread is wide, a single page is tall). */
     fun quadAspect(quad: List<MlsdGeometry.Pt>): Double {
         if (quad.size != 4) return 0.0
@@ -415,6 +436,12 @@ object MlsdMergeRepair {
             if (total <= 1e-9) continue
             val stripFrac = min(areaA, areaB) / total
             if (stripFrac < REPAIR_MIN_STRIP_FRAC || stripFrac > maxStrip) continue
+
+            // OWNER RULE: a fold that discards a QUARTER or more of the quad is not removing a
+            // sliver, it is cutting a two-page spread in half. Keep the union instead — the owner
+            // wants both leaves as one scan when both are visible. See [SECOND_LEAF_KEEP_RATIO].
+            val discardRatio = min(areaA, areaB) / max(1e-9, max(areaA, areaB))
+            if (discardRatio >= SECOND_LEAF_KEEP_RATIO) continue
 
             // STEP 3(b,c): the page is the half that is NOT a partial page. MEASURED design
             // (tooling/out/h32/policy_ab.json, variant h32_v2_novalley): the area prior chooses

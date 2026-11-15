@@ -314,15 +314,17 @@ class MlsdTriggerTest {
         // paper aspect) at SELECTION time, so a sliver split off a PAGE-sized quad — which makes
         // the kept half narrower than a page and was measured as damage — is refused outright
         // instead of being produced and then rejected downstream. The round-trip property this
-        // test guards is unchanged; the scene is now a SPREAD quad, where a 20 % fold is a real
+        // test guards is unchanged; the scene is now a SPREAD quad, where a small fold is a real
         // facing-page sliver and the kept half is a better-shaped page.
         val quad = rect(1420.0, 1000.0)
-        // A spine-parallel fold 20 % in from the left, a bit taller than the spread.
-        val fold = MlsdGeometry.Seg(284.0, -100.0, 284.0, 1100.0)
+        // A spine-parallel fold 15 % in from the left, a bit taller than the spread. 20 % would be
+        // exactly the owner rule's boundary (discard/keep = 0.25) and is refused, so the fixture
+        // sits safely inside the sliver window.
+        val fold = MlsdGeometry.Seg(213.0, -100.0, 213.0, 1100.0)
         val outcome = MlsdMergeRepair.apply(quad, listOf(fold))
         assertTrue("the H32 rule must accept a clear interior fold on a spread", outcome.applied)
         assertEquals("left", outcome.side)
-        assertEquals(0.20, outcome.stripFrac, 0.02)
+        assertEquals(0.15, outcome.stripFrac, 0.02)
 
         val cached = MlsdMergeRepair.fractionalOf(outcome)
         assertNotNull("an applied outcome must be cacheable", cached)
@@ -334,11 +336,11 @@ class MlsdTriggerTest {
             MlsdMergeRepair.pct(MlsdGeometry.polygonArea(projected!!))
         )
         assertEquals(4, projected.size)
-        // Corner order preserved: TL, TR, BR, BL (the kept half is the right 80 %).
-        assertEquals(284.0, projected[0].x, 2.0)
+        // Corner order preserved: TL, TR, BR, BL (the kept half is the right 85 %).
+        assertEquals(213.0, projected[0].x, 2.0)
         assertEquals(1420.0, projected[1].x, 1e-9)
         assertEquals(1420.0, projected[2].x, 1e-9)
-        assertEquals(284.0, projected[3].x, 2.0)
+        assertEquals(213.0, projected[3].x, 2.0)
     }
 
     @Test
@@ -420,13 +422,21 @@ class MlsdTriggerTest {
     fun aMarginSizedStripIsNotAPageSliver() {
         // The measured split between good and damaging folds: every repair that helped cut
         // 0.076 .. 0.259 of the width, every one that damaged a page cut 0.061 .. 0.067.
+        //
+        // The UPPER bound is now the owner's spread rule (2026-11-15): a fold that discards a
+        // quarter or more of the half it keeps is cutting a two-page spread in two, and both
+        // leaves are the target. That is stripFrac >= 0.20, so 0.259 is no longer a sliver.
         val page = rect(1000.0, 1300.0)
         val spread = rect(1500.0, 1300.0)
         val repaired = rect(1000.0, 1300.0)
         assertTrue("a real sliver at 7.6 % must be kept",
             MlsdTrigger.acceptsRepair(spread, repaired, 0.076))
-        assertTrue("a large sliver at 25.9 % must be kept",
+        assertTrue("a sliver at 18 % must be kept",
+            MlsdTrigger.acceptsRepair(spread, repaired, 0.18))
+        assertFalse("25.9 % is a spread split under the owner rule, not a sliver",
             MlsdTrigger.acceptsRepair(spread, repaired, 0.259))
+        assertFalse("the 0.20 boundary itself is a spread split",
+            MlsdTrigger.acceptsRepair(spread, repaired, 0.20))
         assertFalse("a 6.7 % strip is a margin: the corpus damage case",
             MlsdTrigger.acceptsRepair(spread, repaired, 0.067))
         assertFalse("a 6.1 % strip is a margin: the bs05-still wrong split",

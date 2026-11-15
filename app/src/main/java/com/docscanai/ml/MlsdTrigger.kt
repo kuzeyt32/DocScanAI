@@ -255,16 +255,28 @@ object MlsdTrigger {
      */
     const val REPAIR_MIN_STRIP = 0.075
 
+    /** `0.25 / (1 + 0.25)` — the strip fraction above which a fold is a spread split, not a
+     *  sliver removal. See [acceptsRepair]. */
+    const val SPREAD_SPLIT_MAX_STRIP = 0.20
+
     /**
      * True when a merge repair may reach the warp at all: it must cut a sliver of plausible size
      * **and** move the quad towards the paper aspect. Either failure means the fold was a text
      * edge, a margin or a shadow, not the facing page.
+     *
+     * The upper bound is the owner's spread rule: a fold that discards a quarter or more of the
+     * quad is cutting a two-page spread in half, and the owner wants both leaves scanned as one.
+     * `stripFrac` is `discard / (keep + discard)`, so `discard / keep >= 0.25` is
+     * `stripFrac >= 0.20`. Kept in sync with `MlsdMergeRepair.SECOND_LEAF_KEEP_RATIO`; this is the
+     * second line of defence, because [MlsdMergeRepair.apply] already refuses such folds.
      */
     fun acceptsRepair(
         before: List<MlsdGeometry.Pt>,
         after: List<MlsdGeometry.Pt>,
         stripFrac: Double
-    ): Boolean = stripFrac >= REPAIR_MIN_STRIP && improvesPaperAspect(before, after)
+    ): Boolean = stripFrac >= REPAIR_MIN_STRIP &&
+        stripFrac < SPREAD_SPLIT_MAX_STRIP &&
+        improvesPaperAspect(before, after)
 
     /** How well a quad matches the paper aspect prior (0..1), exactly as the gate scores it. */
     fun paperAspectPrior(quad: List<MlsdGeometry.Pt>): Double {
