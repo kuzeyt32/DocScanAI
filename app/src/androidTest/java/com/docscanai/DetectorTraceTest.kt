@@ -85,6 +85,9 @@ class DetectorTraceTest {
         NeuralRepro.requireModels()
         val args = InstrumentationRegistry.getArguments()
         val tag = args.getString("traceTag") ?: args.getString("h35Tag") ?: "default"
+        // H47: a fresh holdout lives in its own asset dir; owner110 must stay untouched so the
+        // holdout is not quietly tuned against.
+        val assetDir = args.getString("assetDir") ?: ASSET_DIR
         val traceAll = args.getString("traceAll") == "1"
         // SUBTASK H40: `traceJsonOnly=1` keeps `trace.json` (peaks, quad, gate) but skips the PNG
         // maps, so the whole 116-photo set can be traced and pulled quickly for offline analysis.
@@ -95,13 +98,13 @@ class DetectorTraceTest {
             ?.filter { it.isNotEmpty() }
             ?: emptyList()
         val names = when {
-            traceAll -> assetNames()
+            traceAll -> assetNames(assetDir)
             requested.isNotEmpty() -> requested
             else -> DEFAULT_IMAGES.filter { stem ->
-                assetNames().any { it == "$stem.jpg" }
+                assetNames(assetDir).any { it == "$stem.jpg" }
             }
         }
-        assertTrue("no trace images resolved (assets under $ASSET_DIR?)", names.isNotEmpty())
+        assertTrue("no trace images resolved (assets under $assetDir?)", names.isNotEmpty())
 
         val context: Context = InstrumentationRegistry.getInstrumentation().targetContext
         val outRoot = File(
@@ -131,7 +134,7 @@ class DetectorTraceTest {
         try {
             names.forEach { name ->
                 val file = if (name.endsWith(".jpg", true)) name else "$name.jpg"
-                val bmp = decode("$ASSET_DIR/$file")
+                val bmp = decode("$assetDir/$file")
                 if (bmp == null) {
                     Log.e(TAG, "H39_TRACE name=$file DECODE_FAILED")
                     failed++
@@ -214,9 +217,9 @@ class DetectorTraceTest {
     // Helpers
     // ------------------------------------------------------------------------------------------
 
-    private fun assetNames(): List<String> =
+    private fun assetNames(dir: String = ASSET_DIR): List<String> =
         InstrumentationRegistry.getInstrumentation().context.assets
-            .list(ASSET_DIR)
+            .list(dir)
             ?.filter { it.endsWith(".jpg", true) }
             ?.sorted()
             ?: emptyList()

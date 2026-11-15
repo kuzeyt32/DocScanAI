@@ -30,6 +30,7 @@ keystore/
 # (*.json: sizes, split labels, oracle corner coordinates) are tracked; the tooling that
 # rebuilds them is under tooling/ (see app/src/androidTest/assets/README.md).
 /app/src/androidTest/assets/owner110/*.jpg
+/app/src/androidTest/assets/holdout*/*.jpg
 /app/src/androidTest/assets/corpus/
 /app/src/androidTest/assets/bookspread/*.jpg
 /app/src/androidTest/assets/bookspread_real/*.jpg

@@ -101,6 +101,7 @@ if /i "%IMAGES%"=="all" (
     set "EXTRA=-e traceImages %IMAGES%"
 )
 if defined DOCSCAN_TRACE_JSON_ONLY set "EXTRA=!EXTRA! -e traceJsonOnly 1"
+if defined DOCSCAN_ASSET_DIR set "EXTRA=!EXTRA! -e assetDir %DOCSCAN_ASSET_DIR%"
 
 "%ADB_DEV%" shell am instrument -w -r -e class com.docscanai.DetectorTraceTest -e traceTag %TAG% !EXTRA! %INSTR% > "%RUN%\DetectorTraceTest.txt" 2>&1
 set "IRC=%ERRORLEVEL%"

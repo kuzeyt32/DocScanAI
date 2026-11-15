@@ -1,0 +1,1060 @@
+{
+ "dataset": "holdout42",
+ "source": "sam2.1-hiera-large (onnx-community ONNX), measurement-only",
+ "frame": "bundled-asset pixels (no EXIF transpose)",
+ "note": "SAM pseudo-GT. Generated after the detector was frozen, never used for tuning. It segments the largest paper region, so it follows a physical sheet rather than a printed frame - which is what the owner's 'box inside the page' report needs.",
+ "count": 42,
+ "items": [
+  {
+   "image": "20261115_192319.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     -0.6,
+     12.7
+    ],
+    "tr": [
+     1365.5,
+     32.2
+    ],
+    "br": [
+     1375.1,
+     1025.6
+    ],
+    "bl": [
+     45.9,
+     1042.5
+    ]
+   }
+  },
+  {
+   "image": "20261115_192321.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     22.2,
+     8.3
+    ],
+    "tr": [
+     1366.0,
+     37.9
+    ],
+    "br": [
+     1381.3,
+     1032.6
+    ],
+    "bl": [
+     -2.2,
+     1027.1
+    ]
+   }
+  },
+  {
+   "image": "20261115_192323.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     17.9,
+     -2.8
+    ],
+    "tr": [
+     1372.1,
+     24.9
+    ],
+    "br": [
+     1374.9,
+     1016.8
+    ],
+    "bl": [
+     16.0,
+     1028.6
+    ]
+   }
+  },
+  {
+   "image": "20261115_192327.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     4.4,
+     15.6
+    ],
+    "tr": [
+     1364.2,
+     6.3
+    ],
+    "br": [
+     1375.8,
+     1011.7
+    ],
+    "bl": [
+     9.8,
+     1051.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192328.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     35.5,
+     12.5
+    ],
+    "tr": [
+     1373.0,
+     5.0
+    ],
+    "br": [
+     1529.3,
+     1013.5
+    ],
+    "bl": [
+     43.4,
+     1010.1
+    ]
+   }
+  },
+  {
+   "image": "20261115_192333.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     0.1,
+     10.7
+    ],
+    "tr": [
+     1368.7,
+     30.0
+    ],
+    "br": [
+     1369.4,
+     1012.8
+    ],
+    "bl": [
+     42.2,
+     1051.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192334.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     0.0,
+     15.2
+    ],
+    "tr": [
+     1365.9,
+     31.2
+    ],
+    "br": [
+     1370.8,
+     1013.2
+    ],
+    "bl": [
+     48.3,
+     1051.5
+    ]
+   }
+  },
+  {
+   "image": "20261115_192337_0.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     6.8,
+     6.4
+    ],
+    "tr": [
+     1364.0,
+     37.3
+    ],
+    "br": [
+     1368.7,
+     1017.5
+    ],
+    "bl": [
+     2.9,
+     1031.2
+    ]
+   }
+  },
+  {
+   "image": "20261115_192337.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     8.3,
+     7.0
+    ],
+    "tr": [
+     1370.0,
+     35.3
+    ],
+    "br": [
+     1367.9,
+     1021.1
+    ],
+    "bl": [
+     2.5,
+     1030.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192340.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     10.3,
+     -6.3
+    ],
+    "tr": [
+     1333.5,
+     22.5
+    ],
+    "br": [
+     1386.4,
+     964.3
+    ],
+    "bl": [
+     4.3,
+     1045.2
+    ]
+   }
+  },
+  {
+   "image": "20261115_192342.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     -5.1,
+     16.8
+    ],
+    "tr": [
+     1385.9,
+     23.5
+    ],
+    "br": [
+     1374.1,
+     1035.3
+    ],
+    "bl": [
+     44.2,
+     1029.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192343_0.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     17.4,
+     14.7
+    ],
+    "tr": [
+     1366.8,
+     32.5
+    ],
+    "br": [
+     1376.2,
+     1042.5
+    ],
+    "bl": [
+     0.6,
+     1032.0
+    ]
+   }
+  },
+  {
+   "image": "20261115_192343.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     26.7,
+     17.5
+    ],
+    "tr": [
+     1365.9,
+     34.2
+    ],
+    "br": [
+     1376.5,
+     1044.2
+    ],
+    "bl": [
+     7.9,
+     1021.1
+    ]
+   }
+  },
+  {
+   "image": "20261115_192347.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     9.2,
+     18.7
+    ],
+    "tr": [
+     1369.4,
+     18.7
+    ],
+    "br": [
+     1363.6,
+     1031.9
+    ],
+    "bl": [
+     3.5,
+     1018.7
+    ]
+   }
+  },
+  {
+   "image": "20261115_192348_0.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     13.4,
+     23.5
+    ],
+    "tr": [
+     1373.9,
+     18.6
+    ],
+    "br": [
+     1355.7,
+     1037.4
+    ],
+    "bl": [
+     3.3,
+     1015.3
+    ]
+   }
+  },
+  {
+   "image": "20261115_192348.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     16.0,
+     15.7
+    ],
+    "tr": [
+     1368.8,
+     27.0
+    ],
+    "br": [
+     1353.7,
+     1035.7
+    ],
+    "bl": [
+     1.9,
+     1018.6
+    ]
+   }
+  },
+  {
+   "image": "20261115_192350.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     7.9,
+     12.6
+    ],
+    "tr": [
+     1370.8,
+     32.9
+    ],
+    "br": [
+     1379.8,
+     1037.4
+    ],
+    "bl": [
+     4.4,
+     1025.7
+    ]
+   }
+  },
+  {
+   "image": "20261115_192351.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     30.1,
+     27.7
+    ],
+    "tr": [
+     1367.2,
+     20.8
+    ],
+    "br": [
+     1375.1,
+     1016.7
+    ],
+    "bl": [
+     2.1,
+     1047.8
+    ]
+   }
+  },
+  {
+   "image": "20261115_192352.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     16.4,
+     23.8
+    ],
+    "tr": [
+     1372.4,
+     14.4
+    ],
+    "br": [
+     1377.5,
+     1023.1
+    ],
+    "bl": [
+     17.2,
+     1045.1
+    ]
+   }
+  },
+  {
+   "image": "20261115_192354_0.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     29.9,
+     33.3
+    ],
+    "tr": [
+     1372.7,
+     19.7
+    ],
+    "br": [
+     1378.9,
+     1025.6
+    ],
+    "bl": [
+     38.5,
+     1009.2
+    ]
+   }
+  },
+  {
+   "image": "20261115_192354.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     35.0,
+     33.1
+    ],
+    "tr": [
+     1364.1,
+     17.9
+    ],
+    "br": [
+     1366.8,
+     1016.8
+    ],
+    "bl": [
+     36.7,
+     1015.7
+    ]
+   }
+  },
+  {
+   "image": "20261115_192356.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     26.8,
+     25.0
+    ],
+    "tr": [
+     1061.0,
+     5.0
+    ],
+    "br": [
+     1061.0,
+     1046.0
+    ],
+    "bl": [
+     35.9,
+     1020.6
+    ]
+   }
+  },
+  {
+   "image": "20261115_192357.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     7.2,
+     6.1
+    ],
+    "tr": [
+     1367.0,
+     38.2
+    ],
+    "br": [
+     1368.4,
+     1010.6
+    ],
+    "bl": [
+     2.3,
+     1029.8
+    ]
+   }
+  },
+  {
+   "image": "20261115_192359_0.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     26.8,
+     29.3
+    ],
+    "tr": [
+     1375.3,
+     32.1
+    ],
+    "br": [
+     1366.5,
+     1015.4
+    ],
+    "bl": [
+     27.6,
+     1028.0
+    ]
+   }
+  },
+  {
+   "image": "20261115_192359.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     23.3,
+     22.0
+    ],
+    "tr": [
+     1375.7,
+     32.9
+    ],
+    "br": [
+     1370.4,
+     1018.5
+    ],
+    "bl": [
+     3.2,
+     1029.8
+    ]
+   }
+  },
+  {
+   "image": "20261115_192402.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     23.2,
+     10.5
+    ],
+    "tr": [
+     1387.3,
+     47.4
+    ],
+    "br": [
+     1366.3,
+     1017.2
+    ],
+    "bl": [
+     42.1,
+     1007.6
+    ]
+   }
+  },
+  {
+   "image": "20261115_192403.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     43.4,
+     21.4
+    ],
+    "tr": [
+     1356.2,
+     62.1
+    ],
+    "br": [
+     1350.2,
+     1017.2
+    ],
+    "bl": [
+     34.8,
+     1005.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192406.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     20.6,
+     25.2
+    ],
+    "tr": [
+     1369.9,
+     34.5
+    ],
+    "br": [
+     1375.8,
+     1025.8
+    ],
+    "bl": [
+     -0.8,
+     1031.7
+    ]
+   }
+  },
+  {
+   "image": "20261115_192407.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     1.5,
+     10.8
+    ],
+    "tr": [
+     1367.2,
+     29.7
+    ],
+    "br": [
+     1365.3,
+     1021.6
+    ],
+    "bl": [
+     38.1,
+     1024.6
+    ]
+   }
+  },
+  {
+   "image": "20261115_192410.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     18.0,
+     10.4
+    ],
+    "tr": [
+     1371.0,
+     37.1
+    ],
+    "br": [
+     1367.5,
+     1013.5
+    ],
+    "bl": [
+     2.8,
+     1021.6
+    ]
+   }
+  },
+  {
+   "image": "20261115_192411.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     37.7,
+     14.6
+    ],
+    "tr": [
+     1369.3,
+     33.1
+    ],
+    "br": [
+     1376.9,
+     1019.6
+    ],
+    "bl": [
+     -3.9,
+     1023.8
+    ]
+   }
+  },
+  {
+   "image": "20261115_192416.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     33.1,
+     31.0
+    ],
+    "tr": [
+     1379.0,
+     5.0
+    ],
+    "br": [
+     1379.0,
+     1046.0
+    ],
+    "bl": [
+     35.9,
+     1020.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192417.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     27.9,
+     33.7
+    ],
+    "tr": [
+     1297.6,
+     39.6
+    ],
+    "br": [
+     1273.7,
+     1023.9
+    ],
+    "bl": [
+     34.6,
+     1025.2
+    ]
+   }
+  },
+  {
+   "image": "20261115_192441.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     10.5,
+     16.9
+    ],
+    "tr": [
+     1359.4,
+     7.0
+    ],
+    "br": [
+     1379.0,
+     1046.0
+    ],
+    "bl": [
+     3.3,
+     1024.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192442.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     49.1,
+     20.2
+    ],
+    "tr": [
+     1367.7,
+     28.7
+    ],
+    "br": [
+     1389.1,
+     1044.3
+    ],
+    "bl": [
+     30.1,
+     1016.0
+    ]
+   }
+  },
+  {
+   "image": "20261115_192444.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     23.8,
+     -0.6
+    ],
+    "tr": [
+     1400.8,
+     13.1
+    ],
+    "br": [
+     1379.5,
+     1028.7
+    ],
+    "bl": [
+     31.3,
+     1032.5
+    ]
+   }
+  },
+  {
+   "image": "20261115_192445.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     25.2,
+     22.2
+    ],
+    "tr": [
+     1395.0,
+     0.0
+    ],
+    "br": [
+     1363.3,
+     1008.0
+    ],
+    "bl": [
+     -13.8,
+     1027.6
+    ]
+   }
+  },
+  {
+   "image": "20261115_192450.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     0.8,
+     -2.4
+    ],
+    "tr": [
+     1371.6,
+     26.5
+    ],
+    "br": [
+     1399.4,
+     1022.2
+    ],
+    "bl": [
+     21.4,
+     978.2
+    ]
+   }
+  },
+  {
+   "image": "20261115_192454.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     38.6,
+     35.8
+    ],
+    "tr": [
+     1351.5,
+     29.7
+    ],
+    "br": [
+     1324.7,
+     1018.9
+    ],
+    "bl": [
+     23.6,
+     1020.9
+    ]
+   }
+  },
+  {
+   "image": "20261115_192455.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     29.5,
+     27.1
+    ],
+    "tr": [
+     1385.0,
+     22.1
+    ],
+    "br": [
+     1382.3,
+     1030.5
+    ],
+    "bl": [
+     33.1,
+     1007.1
+    ]
+   }
+  },
+  {
+   "image": "20261115_192457.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     41.1,
+     -8.2
+    ],
+    "tr": [
+     1378.6,
+     25.3
+    ],
+    "br": [
+     1399.5,
+     1031.6
+    ],
+    "bl": [
+     19.1,
+     846.2
+    ]
+   }
+  },
+  {
+   "image": "20261115_192458.jpg",
+   "width": 1400,
+   "height": 1050,
+   "src_scale": 0.35,
+   "oracle_format": "xy",
+   "corners_px": {
+    "tl": [
+     27.2,
+     36.2
+    ],
+    "tr": [
+     1396.6,
+     30.9
+    ],
+    "br": [
+     1355.2,
+     1018.2
+    ],
+    "bl": [
+     34.6,
+     1010.7
+    ]
+   }
+  }
+ ],
+ "status": "UNUSABLE as ground truth - see docs/runs/holdout42-audit.md. The frame-sized SAM box prompt segmented the whole scene on these tightly framed photos, so 39/42 quads are the image border. Kept as evidence; h47_score.py refuses to score against it."
+}
