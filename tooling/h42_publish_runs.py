@@ -29,11 +29,11 @@ from pathlib import Path
 OUT = Path("tooling/out")
 DOCS = Path("docs/runs")
 
-TRACE = OUT / "h39/h40all/manifest.json"
+TRACE = OUT / "h39/h43full/manifest.json"
 # `h38_gate.py` writes report_<tag>.json into the LANE directory (tooling/out/h38/), not into the
 # per-tag folder, so these two live side by side with their evidence folders.
-BASELINE = OUT / "h38/report_h38fixd.json"
-FIXED = OUT / "h38/report_h40relax.json"
+BASELINE = OUT / "h38/report_h40relax.json"      # 0.3.15: corner model reaches 33 photos
+FIXED = OUT / "h38/report_h44crop.json"          # 0.3.16: letterbox + multi-crop rescue
 
 
 def load(path: Path):
@@ -106,7 +106,7 @@ def build_detector_page() -> str | None:
     lines.append(f"| **detected** | {a} | {b} | {'+' if b-a > 0 else ''}{b - a} |")
 
     lines += ["", "### By provenance (detected photos only)", "",
-              "| provenance | 0.3.13 | 0.3.14 |", "|---|---|---|"]
+              "| provenance | 0.3.15 | 0.3.16 |", "|---|---|---|"]
     for p in sorted(set(sb["provenance"]) | set(sf["provenance"])):
         lines.append(f"| {p} | {cell(sb['provenance'], p)} | {cell(sf['provenance'], p)} |")
 
@@ -121,7 +121,7 @@ def build_detector_page() -> str | None:
                   (fixd_rows[n].get("prov"), fixd_rows[n].get("detected"))]
     lines += ["", f"### Photos whose decision changed ({len(changed)})", ""]
     if changed:
-        lines += ["| photo | 0.3.13 | 0.3.14 | IoU vs oracle | class |", "|---|---|---|---|---|"]
+        lines += ["| photo | 0.3.15 | 0.3.16 | IoU vs oracle | class |", "|---|---|---|---|---|"]
         for n in sorted(changed):
             b_, f_ = base_rows[n], fixd_rows[n]
             lines.append(
@@ -132,7 +132,7 @@ def build_detector_page() -> str | None:
     else:
         lines.append("_none_")
 
-    lines += ["", "## Per-photo measurements (0.3.14)", "",
+    lines += ["", "## Per-photo measurements (0.3.16)", "",
               "`iou` is against the pseudo-GT oracle quad; `corner %` is mean corner error as a",
               "percentage of the image diagonal. Both are lower bounds (oracle corners are hand-",
               "marked, ~5-10 % of the diagonal off on curved pages).", "",
@@ -232,7 +232,7 @@ def main(argv: list[str]) -> int:
         "| file | what it is | source lane |",
         "|---|---|---|",
         "| [`detector-116.md`](detector-116.md) | Detector verdict over all 116 owner photos: "
-        "0.3.13 vs 0.3.15, per-photo quad measurements, corner-model blind spots | "
+        "0.3.15 vs 0.3.16, per-photo quad measurements, corner-model blind spots | "
         "`h38_lane.cmd` + `h42_publish_runs.py` |",
         ship_row,
         "",
@@ -241,7 +241,7 @@ def main(argv: list[str]) -> int:
         "```bat",
         "tooling\\h38_lane.cmd h40relax Owner110RealPathTest",
         "python tooling\\h38_gate.py --tag h40relax",
-        "tooling\\h41_ship.cmd v0315",
+        "tooling\\h41_ship.cmd v0316",
         "python tooling\\h42_publish_runs.py",
         "```",
         "",

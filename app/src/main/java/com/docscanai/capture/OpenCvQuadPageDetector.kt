@@ -2023,6 +2023,7 @@ class OpenCvQuadPageDetector(
         val edge: Int
         val heat: FloatArray
         val plane: Int
+        var letterbox: CornerLetterbox? = null
         if (cornerInputEdge > 0) {
             var run = runCornerInference(bitmap, model, cornerInputEdge)
             // If a previously-latched higher scale fails at runtime, fall back to the pinned 256.
@@ -2035,14 +2036,15 @@ class OpenCvQuadPageDetector(
                 return null
             }
             edge = cornerInputEdge
-            heat = run.first
-            plane = run.second
+            heat = run.heat
+            plane = run.plane
+            letterbox = run.letterbox
         } else {
             // H7 Tier A probe: prefer the higher input resolution; the pinned graph declares a
             // static [1,3,256,256] input, so ORT may reject 512. We try 512 first, then 256, and
             // latch whichever actually produced a valid heat map.
             var chosenEdge = 0
-            var chosen: Pair<FloatArray, Int>? = null
+            var chosen: CornerRun? = null
             for (candidate in intArrayOf(CORNER_INPUT_PROBE_EDGE, CORNER_INPUT_EDGE)) {
                 val run = runCornerInference(bitmap, model, candidate)
                 if (run != null) {
@@ -2057,29 +2059,59 @@ class OpenCvQuadPageDetector(
             }
             cornerInputEdge = chosenEdge
             edge = chosenEdge
-            heat = chosen.first
-            plane = chosen.second
+            heat = chosen.heat
+            plane = chosen.plane
+            letterbox = chosen.letterbox
             Diag.log(
                 "Detect",
                 "corner model scale=$edge subpixel=" +
                     (if (CORNER_SUBPIXEL_ENABLED) "on" else "off") + " err_px=-1 (runtime probe)"
             )
         }
-        val quad = postprocessCornerHeat(heat, plane, bitmap.width, bitmap.height)
+        var quad = postprocessCornerHeat(heat, plane, bitmap.width, bitmap.height, letterbox)
+
+        // SUBTASK H44 - SMALL-PAGE RESCUE.
+        //
+        // On photos where the page fills little of the frame (a green workbook among white sheets)
+        // the full-frame pass returns all four peaks at ~0.001: the model sees nothing. Measured on
+        // the owner corpus (`tooling/h44_multicrop.py`): adding 5 overlapping crops raises model
+        // quads that MATCH the page from 42 to 52, and **all 10 gained photos had no full-frame
+        // lock at all** - zero recovered from photos that already locked, so retrying only on
+        // failure costs nothing for the 71 photos that work.
+        //
+        // Only on the still/import path ([MlsdTrigger.Hint.still]): the retry is up to 5 extra
+        // inferences (~220 ms), which is fine once per capture but not per preview frame.
+        if (quad == null && mlsdHint.still) {
+            val rescued = rescueWithCrops(bitmap, model, edge)
+            if (rescued != null) {
+                quad = rescued
+                Diag.log(TAG, "corner detect: small-page rescue succeeded (multi-crop)")
+            }
+        }
         // SUBTASK H39 — AI evidence, written BEFORE any gate/repair decision: the exact resized
         // tensor input and the four raw corner-heat channels (plus the max composite and a
         // labelled montage). This is the artifact that answers "is the model's map good enough?"
         if (trace != null) {
             runCatching {
-                val inputBmp = Bitmap.createScaledBitmap(bitmap, edge, edge, true)
+                // SUBTASK H43: dump the ACTUAL model input. It used to be a
+                // Bitmap.createScaledBitmap squash, which after letterboxing no longer describes
+                // what the graph receives - the evidence would have been misleading.
+                val inputBmp = renderCornerInput(bitmap, edge, letterbox)
                 try {
-                    trace.png("corner_input", inputBmp)
+                    if (inputBmp != null) trace.png("corner_input", inputBmp)
                 } finally {
-                    if (inputBmp !== bitmap) inputBmp.recycle()
+                    if (inputBmp != null && inputBmp !== bitmap) inputBmp.recycle()
                 }
                 trace.heatDump("heat", heat, plane, bitmap.width, bitmap.height)
                 val section = trace.section("corner_post")
                 section.put("input_edge", edge)
+                section.put("letterbox", letterbox != null)
+                if (letterbox != null) {
+                    section.put("lb_x0", letterbox.x0)
+                    section.put("lb_y0", letterbox.y0)
+                    section.put("lb_w", letterbox.w)
+                    section.put("lb_h", letterbox.h)
+                }
                 section.put("subpixel_refine", subpixelRefineEnabled())
                 section.put("peak_gate", CORNER_PEAK_MIN.toDouble())
                 // SUBTASK H40: which floor was actually applied (the relaxed one fires only when
@@ -2111,6 +2143,61 @@ class OpenCvQuadPageDetector(
     }
 
     /**
+     * SUBTASK H44 - retry the corner model on overlapping crops, so a page that fills little of
+     * the frame arrives at the graph at a usable scale.
+     *
+     * Boxes: the four quadrants with a 15 % overlap (so a page straddling the centre line is whole
+     * in at least one crop) and a 70 % centre crop. The first crop that yields four confident
+     * channels and a plausible quad wins. Returns `null` when none does, leaving the caller to fall
+     * back to the classical path exactly as before.
+     */
+    private fun rescueWithCrops(bitmap: Bitmap, model: OnnxModel, edge: Int): Quad? {
+        val w = bitmap.width
+        val h = bitmap.height
+        if (w < 64 || h < 64) return null
+        val ox = (w * CROP_OVERLAP).toInt()
+        val oy = (h * CROP_OVERLAP).toInt()
+        val mx = w / 2
+        val my = h / 2
+        val boxes = arrayOf(
+            intArrayOf(0, 0, min(w, mx + ox), min(h, my + oy)),
+            intArrayOf(max(0, mx - ox), 0, w, min(h, my + oy)),
+            intArrayOf(0, max(0, my - oy), min(w, mx + ox), h),
+            intArrayOf(max(0, mx - ox), max(0, my - oy), w, h),
+            intArrayOf((w * 0.15).toInt(), (h * 0.15).toInt(), (w * 0.85).toInt(), (h * 0.85).toInt())
+        )
+        for (box in boxes) {
+            val cw = box[2] - box[0]
+            val chh = box[3] - box[1]
+            if (cw < 48 || chh < 48) continue
+            val crop = try {
+                Bitmap.createBitmap(bitmap, box[0], box[1], cw, chh)
+            } catch (t: Throwable) {
+                continue
+            }
+            try {
+                val run = runCornerInference(crop, model, edge) ?: continue
+                val q = postprocessCornerHeat(run.heat, run.plane, cw, chh, run.letterbox)
+                    ?: continue
+                // Map the crop-space quad back into the full frame and re-validate it there.
+                val pts = arrayOf(
+                    CvPoint(q.topLeft.x.toDouble() + box[0], q.topLeft.y.toDouble() + box[1]),
+                    CvPoint(q.topRight.x.toDouble() + box[0], q.topRight.y.toDouble() + box[1]),
+                    CvPoint(q.bottomRight.x.toDouble() + box[0], q.bottomRight.y.toDouble() + box[1]),
+                    CvPoint(q.bottomLeft.x.toDouble() + box[0], q.bottomLeft.y.toDouble() + box[1])
+                )
+                val mapped = orderCorners(pts)
+                if (isPlausiblePageQuad(mapped, w.toDouble(), h.toDouble())) return mapped
+            } catch (t: Throwable) {
+                Diag.warn(TAG, "corner rescue crop failed: ${t.message}")
+            } finally {
+                if (crop !== bitmap) crop.recycle()
+            }
+        }
+        return null
+    }
+
+    /**
      * One inference attempt at [edge]×[edge]. Returns `(flatHeat, planeElements)` where
      * `planeElements = heat.size / 4`, or `null` when the graph rejects the shape / output is
      * malformed.
@@ -2119,11 +2206,12 @@ class OpenCvQuadPageDetector(
         bitmap: Bitmap,
         model: OnnxModel,
         edge: Int
-    ): Pair<FloatArray, Int>? {
-        val input = preprocessForCornerModel(bitmap, edge, edge) ?: run {
+    ): CornerRun? {
+        val pre = preprocessForCornerModel(bitmap, edge, edge) ?: run {
             Diag.log(TAG, "corner detect: preprocess failed (${bitmap.width}x${bitmap.height})")
             return null
         }
+        val input = pre.first
         val heat = model.runFloat(
             input,
             longArrayOf(1L, 3L, edge.toLong(), edge.toLong()),
@@ -2133,31 +2221,197 @@ class OpenCvQuadPageDetector(
             Diag.log(TAG, "corner detect: bad output size=${heat.size}")
             return null
         }
-        return heat to (heat.size / 4)
+        return CornerRun(heat, heat.size / 4, pre.second)
     }
 
     /**
-     * // M1c preprocess — plain resize to `w × h` (aspect NOT preserved, matching DocAligner's
-     * `cb.imresize(img, size=(256,256))`), channels packed RGB→NCHW on the `0..1` scale (÷255), no
-     * mean/std. Bounded by construction (`w`,`h` are the fixed graph size).
+     * SUBTASK H43: one inference result plus the letterbox geometry it was built with, so the
+     * heat peaks can be mapped back to frame coordinates correctly.
      */
-    private fun preprocessForCornerModel(bitmap: Bitmap, w: Int, h: Int): FloatBuffer? {
+    private data class CornerRun(
+        val heat: FloatArray,
+        val plane: Int,
+        val letterbox: CornerLetterbox?
+    )
+
+    /**
+     * // M1c preprocess — SUBTASK H43: **letterbox, not squash.**
+     *
+     * The corner model is a fixed 256x256 graph. Until H43 the app fed it
+     * `Bitmap.createScaledBitmap(bitmap, 256, 256, true)`, an aspect-DESTROYING squash. A phone
+     * still is 4:3 (1400x1050), so the page reached the model stretched 33 % vertically.
+     * Measured on the 116-photo owner corpus with the real graph (`tooling/h43_*.py`):
+     *
+     * | input | photos with a 4-channel lock | model quads matching the page (IoU>=0.5) |
+     * |---|---|---|
+     * | squash + bilinear (old) | 30 | 23 |
+     * | squash + cubic          | 33 | 25 |
+     * | **letterbox + cubic**   | **61** | **42** |
+     * | letterbox + bilinear    | 55 | 38 |
+     *
+     * Letterboxing gains 19 correct model quads (losing 3); cubic gains 5 with no losses. Both are
+     * applied. The pad is flat grey ([LETTERBOX_PAD]); a heat peak inside the pad is not a page
+     * corner, and [postprocessCornerHeat] rejects it via [CornerLetterbox].
+     *
+     * Channels are still packed RGB->NCHW on the `0..1` scale (divide 255), no mean/std, matching
+     * DocAligner's contract.
+     */
+    private fun preprocessForCornerModel(
+        bitmap: Bitmap,
+        w: Int,
+        h: Int
+    ): Pair<FloatBuffer, CornerLetterbox?>? {
         if (w <= 0 || h <= 0) return null
-        val resized = Bitmap.createScaledBitmap(bitmap, w, h, true)
-        val pixels = IntArray(w * h)
-        resized.getPixels(pixels, 0, w, 0, 0, w, h)
-        if (resized !== bitmap) resized.recycle()
+        val src = Mat()
+        val resized = Mat()
+        val canvas = Mat(h, w, CvType.CV_8UC3, Scalar(LETTERBOX_PAD, LETTERBOX_PAD, LETTERBOX_PAD))
+        val rgbBuf = ByteArray(3 * w * h)
+        val geometry: CornerLetterbox
+        try {
+            // Utils.bitmapToMat returns RGBA for an ARGB_8888 bitmap. `copyTo` into the 3-channel
+            // canvas silently does nothing on a channel mismatch, which left the model looking at
+            // the flat pad: every channel peak collapsed to ~0.002 and CORNER_MODEL dropped to 0
+            // detections on the whole owner set. Normalise to BGR first.
+            Utils.bitmapToMat(bitmap, src)
+            if (src.channels() == 4) {
+                val bgr = Mat()
+                try {
+                    Imgproc.cvtColor(src, bgr, Imgproc.COLOR_RGBA2BGR)
+                    bgr.copyTo(src)
+                } finally {
+                    bgr.release()
+                }
+            } else if (src.channels() == 1) {
+                val bgr = Mat()
+                try {
+                    Imgproc.cvtColor(src, bgr, Imgproc.COLOR_GRAY2BGR)
+                    bgr.copyTo(src)
+                } finally {
+                    bgr.release()
+                }
+            }
+            val scale = min(w.toDouble() / src.cols(), h.toDouble() / src.rows())
+            val nw = max(1, (src.cols() * scale).toInt())
+            val nh = max(1, (src.rows() * scale).toInt())
+            if (nw != src.cols() || nh != src.rows()) {
+                Imgproc.resize(
+                    src, resized, Size(nw.toDouble(), nh.toDouble()), 0.0, 0.0,
+                    Imgproc.INTER_CUBIC
+                )
+            } else {
+                src.copyTo(resized)
+            }
+            val x0 = (w - nw) / 2
+            val y0 = (h - nh) / 2
+            resized.copyTo(canvas.submat(y0, y0 + nh, x0, x0 + nw))
+            // Guard: if the copy did not land, the model would be fed pure pad. Detect that here
+            // instead of silently producing "no corners" for every photo.
+            val probe = ByteArray(3)
+            canvas.get(y0 + nh / 2, x0 + nw / 2, probe)
+            val allPad = probe.all { (it.toInt() and 0xFF) == LETTERBOX_PAD.toInt() }
+            if (allPad) {
+                Diag.warn(TAG, "corner preprocess: letterbox content is empty (channels=" +
+                    "${src.channels()}) -> classical")
+                return null
+            }
+            geometry = CornerLetterbox(x0, y0, nw, nh, w)
+            canvas.get(0, 0, rgbBuf)
+        } catch (t: Throwable) {
+            Diag.warn(TAG, "corner preprocess failed: ${t.message}")
+            return null
+        } finally {
+            src.release()
+            resized.release()
+            canvas.release()
+        }
 
         val plane = w * h
         val buffer = FloatBuffer.allocate(3 * plane)
         for (i in 0 until plane) {
-            val p = pixels[i]
-            buffer.put(i, ((p shr 16) and 0xFF) / 255f)
-            buffer.put(plane + i, ((p shr 8) and 0xFF) / 255f)
-            buffer.put(2 * plane + i, (p and 0xFF) / 255f)
+            val o = i * 3
+            buffer.put(i, (rgbBuf[o + 2].toInt() and 0xFF) / 255f)
+            buffer.put(plane + i, (rgbBuf[o + 1].toInt() and 0xFF) / 255f)
+            buffer.put(2 * plane + i, (rgbBuf[o].toInt() and 0xFF) / 255f)
         }
         buffer.rewind()
-        return buffer
+        return buffer to geometry
+    }
+
+    /**
+     * SUBTASK H43: render the letterboxed model input for the trace dump, so `corner_input.png`
+     * shows exactly what the graph receives (photo + grey pad), not the old squash.
+     */
+    private fun renderCornerInput(
+        bitmap: Bitmap,
+        edge: Int,
+        letterbox: CornerLetterbox?
+    ): Bitmap? {
+        if (letterbox == null) return Bitmap.createScaledBitmap(bitmap, edge, edge, true)
+        return try {
+            val src = Mat()
+            val bgr = Mat()
+            val canvas = Mat(edge, edge, CvType.CV_8UC3,
+                Scalar(LETTERBOX_PAD, LETTERBOX_PAD, LETTERBOX_PAD))
+            val resized = Mat()
+            try {
+                Utils.bitmapToMat(bitmap, src)
+                if (src.channels() == 4) {
+                    Imgproc.cvtColor(src, bgr, Imgproc.COLOR_RGBA2BGR)
+                } else {
+                    src.copyTo(bgr)
+                }
+                Imgproc.resize(
+                    bgr, resized, Size(letterbox.w.toDouble(), letterbox.h.toDouble()),
+                    0.0, 0.0, Imgproc.INTER_CUBIC
+                )
+                resized.copyTo(
+                    canvas.submat(
+                        letterbox.y0, letterbox.y0 + letterbox.h,
+                        letterbox.x0, letterbox.x0 + letterbox.w
+                    )
+                )
+                val out = Bitmap.createBitmap(edge, edge, Bitmap.Config.ARGB_8888)
+                Utils.matToBitmap(canvas, out)
+                out
+            } finally {
+                src.release()
+                bgr.release()
+                canvas.release()
+                resized.release()
+            }
+        } catch (t: Throwable) {
+            Diag.warn(TAG, "trace corner_input render failed: ${t.message}")
+            null
+        }
+    }
+
+    /**
+     * SUBTASK H43: where the photo sits inside the letterboxed model input, so a heat peak can be
+     * mapped back to frame coordinates and a peak on the pad band can be discarded.
+     */
+    private data class CornerLetterbox(
+        val x0: Int,
+        val y0: Int,
+        val w: Int,
+        val h: Int,
+        val edge: Int
+    ) {
+        /**
+         * Map a heat-map cell to source-frame pixels. [hx],[hy] are heat coordinates in
+         * `0..heatSide`; a point that falls in the pad band has no frame position, so `null` is
+         * returned and the caller treats that channel as having no corner.
+         */
+        fun toFrame(hx: Double, hy: Double, heatSide: Int, frameW: Double, frameH: Double)
+            : CvPoint? {
+            // heat cell -> letterbox pixel -> content pixel -> frame pixel
+            val cx = (hx + 0.5) * edge / heatSide
+            val cy = (hy + 0.5) * edge / heatSide
+            if (cx < x0 || cx >= x0 + w || cy < y0 || cy >= y0 + h) return null
+            return CvPoint(
+                (cx - x0) * frameW / w,
+                (cy - y0) * frameH / h
+            )
+        }
     }
 
     /**
@@ -2169,7 +2423,8 @@ class OpenCvQuadPageDetector(
         heat: FloatArray,
         plane: Int,
         frameW: Int,
-        frameH: Int
+        frameH: Int,
+        letterbox: CornerLetterbox? = null
     ): Quad? {
         if (plane <= 0 || heat.size < 4 * plane) return null
         // The heat map is square; its side is inferred from the runtime output (128 at a 256 input,
@@ -2214,6 +2469,26 @@ class OpenCvQuadPageDetector(
                 val py = mi / hw
                 // H7 sub-pixel: 3-point quadratic interpolation of the heat-map peak in x and y.
                 val sub = if (CORNER_SUBPIXEL_ENABLED) subpixelPeak(heat, off, px, py, hw) else null
+                // SUBTASK H43: with letterboxing the photo occupies only the centre of the model
+                // input, so a heat coordinate must be mapped through that content rectangle. A
+                // peak inside the pad band is a response to the flat padding, not to the page.
+                val lb = letterbox
+                if (lb != null) {
+                    val mapped = lb.toFrame(
+                        sub?.first ?: px.toDouble(),
+                        sub?.second ?: py.toDouble(),
+                        hw, frameW.toDouble(), frameH.toDouble()
+                    )
+                    if (mapped == null) {
+                        Diag.log(
+                            TAG,
+                            "corner detect: channel $c peak on letterbox pad -> classical"
+                        )
+                        return null
+                    }
+                    corners.add(mapped)
+                    continue
+                }
                 val pt = if (sub != null) {
                     CvPoint(
                         (sub.first + 0.5) * frameW.toDouble() / hw,
@@ -2844,6 +3119,15 @@ class OpenCvQuadPageDetector(
 
         /** Per-channel peak a channel must clear for its siblings to relax [CORNER_PEAK_MIN]. */
         private const val CORNER_PEAK_STRONG = 0.35f
+
+        /** SUBTASK H44: overlap between rescue crops, as a fraction of the frame width/height. */
+        private const val CROP_OVERLAP = 0.15
+
+        /**
+         * SUBTASK H43: flat grey used to pad the letterboxed model input. A heat peak that lands on
+         * this band is a response to the padding rather than to the photo, and is rejected.
+         */
+        private const val LETTERBOX_PAD: Double = 114.0
 
         /** Heat-map binarisation threshold used to isolate a corner blob (upstream default). */
         private const val CORNER_HEATMAP_THRESHOLD = 0.30f

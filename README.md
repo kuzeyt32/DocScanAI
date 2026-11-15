@@ -10,7 +10,7 @@ offline** — there is no cloud, no account, and no OCR.
 
 - **Package / application ID:** `com.docscanai`
 - **Language / UI:** Kotlin + Jetpack Compose (Material 3)
-- **Version:** `18` / `0.3.15`
+- **Version:** `19` / `0.3.16`
 - **Target device:** Samsung Galaxy S25 FE (arm64-v8a), Android 14/15 — runs on Android 8.0 (API 26)+
 
 > **Documentation map (start here).**
