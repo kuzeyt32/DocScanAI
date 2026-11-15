@@ -477,6 +477,34 @@ class OpenCvQuadPageDetector(
     private fun applyMlsdEvidence(bitmap: Bitmap, quad: Quad): Quad {
         if (mlsdMode == MlsdMode.OFF) return quad
 
+        // SUBTASK H52 - do not pay for evidence nothing consumes.
+        //
+        // With MLSD_REPAIR_ENABLED = false the split rule is off, so the repair branch below
+        // never produces a quad. The CANDIDATE branch (mlsd_square) is the only remaining
+        // consumer, and it is inert on both photo sets: `h60_reasons.py` shows zero
+        // `mlsd_square` outcomes across 42 holdout and 116 owner photos - every quad comes back
+        // `corner(...)` or `no_signature`.
+        //
+        // Running the model anyway costs real time and battery: the trace's own `modelMs` puts
+        // M-LSD at 46-47 ms, which is 46-50 % of a median CORNER_MODEL detection (99 ms on the
+        // holdout, 93 ms on owner110). Skipping it therefore roughly HALVES the per-photo
+        // detector cost, and the output is byte-identical because nothing reads it.
+        //
+        // `mlsdMode` can still select CANDIDATE (or BOTH), and setting MLSD_REPAIR_ENABLED = true
+        // restores the old cost. The `[MLSD]` log line is still written, so traces keep their
+        // shape and say why nothing ran.
+        if (!MLSD_REPAIR_ENABLED &&
+            mlsdMode != MlsdMode.CANDIDATE && mlsdMode != MlsdMode.BOTH
+        ) {
+            logMlsd(
+                segments = 0, squares = 0, result = null, chosen = "corner",
+                reason = "corner(evidence_disabled)", signature = MlsdTrigger.signature(
+                    toPts(quad), bitmap.width, bitmap.height, mlsdHint, mlsdPolicy
+                ), triggerUs = 0
+            )
+            return quad
+        }
+
         val frameW = bitmap.width.toDouble()
         val frameH = bitmap.height.toDouble()
         val pts = toPts(quad)

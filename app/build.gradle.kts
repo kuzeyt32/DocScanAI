@@ -59,8 +59,8 @@ android {
         // SUBTASK H33: user-visible fix ("show what it sees") — the preview no longer crops the
         // capture field of view: Preview + ImageCapture are pinned to one 4:3 stream and the
         // PreviewView letterboxes it (FIT_CENTER), so what is on screen is what gets captured.
-        versionCode = 20
-        versionName = "0.3.17"
+        versionCode = 21
+        versionName = "0.3.18"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
