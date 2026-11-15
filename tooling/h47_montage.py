@@ -29,6 +29,7 @@ def main() -> int:
     ap.add_argument("--width", type=int, default=420)
     ap.add_argument("--lane", default="", help="trace tag: also draw the DETECTED quad in red")
     ap.add_argument("--prefix", default="sheet", help="output file prefix")
+    ap.add_argument("--only", default="", help="comma-separated image stems to include")
     args = ap.parse_args()
 
     root = ASSETS / args.set
@@ -40,6 +41,9 @@ def main() -> int:
     quads = {i["image"]: i.get("corners_px") for i in items}
 
     names = sorted(p.name for p in root.glob("*.jpg"))
+    if args.only:
+        wanted = {s.strip() for s in args.only.split(",") if s.strip()}
+        names = [n for n in names if n[:-4] in wanted]
     per = args.cols * args.rows
     OUT.mkdir(parents=True, exist_ok=True)
     lane = Path("tooling/out/h39") / args.lane if args.lane else None

@@ -1,5 +1,7 @@
 # Holdout 42 - strict visual audit
 
+**Status: superseded for edge accuracy by `h50_quad_vs_mask.py`; do not quote the LOCK counts below.** This file is kept for the failure-mode taxonomy only. A white page on a white table hides its own edge, so eye-level judgement over-credits coverage - `20261115_192321` was called LOCK here while its quad covers x 0.39-0.82 of a page that runs x 0.11-0.76.
+
 42 fresh photos (never used for tuning), detector build 0.3.16.
 
 | verdict | photos |
@@ -10,9 +12,9 @@
 | SPREAD | 5 |
 | BAD | 4 |
 
-**26 / 42 (62 %) locked the page on all four edges.**
+**26 / 42 (62 %) were called LOCK by eye.** This number is not a coverage measurement - see the status note at the top.
 
-Excluding the 5 photos where both leaves are fully visible and the target leaf is undefined: **26 / 37 ordinary photos are clean (70 %)**.
+By eye, 5 photos had both leaves in the quad (correct under the owner's rule) and {counts['INNER']} locked a panel inside a page. Neither count is a measurement.
 
 ## Gate behaviour on this set
 

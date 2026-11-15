@@ -519,41 +519,71 @@ class OpenCvQuadPageDetector(
         var cachedFold: MlsdMergeRepair.Fractional? = null
 
         if (mlsdMode == MlsdMode.REPAIR || mlsdMode == MlsdMode.BOTH) {
-            // SUBTASK H32: the pixel partial-page term (border-is-paper) needs luma samples; the
-            // bitmap is already in hand, so expose them as a lambda. The rule stays pure-Kotlin.
-            val lumaSampler = { x: Int, y: Int ->
-                val px = x.coerceIn(0, bitmap.width - 1)
-                val py = y.coerceIn(0, bitmap.height - 1)
-                val c = bitmap.getPixel(px, py)
-                ((0.299 * ((c shr 16) and 0xFF)) + (0.587 * ((c shr 8) and 0xFF)) +
-                    (0.114 * (c and 0xFF))) / 255.0
-            }
-            val outcome = MlsdMergeRepair.apply(pts, result.segments, bitmap.width, bitmap.height, lumaSampler)
-            if (outcome.applied && outcome.quad != null) {
-                val ordered = MlsdMergeRepair.orderCorners(outcome.quad)
-                val candidate = toQuad(ordered)
-                if (candidate != null && isPlausiblePageQuad(candidate, frameW, frameH)) {
-                    // H31 "do no harm": a split along a TEXT edge makes the page narrower than a
-                    // page, a split along a real gutter takes a spread back to page proportions.
-                    // Only the latter may reach the warp — see MlsdTrigger.acceptsRepair for the
-                    // two measured conditions (sliver size + direction of the aspect change).
-                    if (!MlsdTrigger.acceptsRepair(pts, ordered, outcome.stripFrac)) {
-                        reason = if (outcome.stripFrac < MlsdTrigger.REPAIR_MIN_STRIP) {
-                            "split_rejected_strip"
+            // SUBTASK H52 - THE SPLIT IS OFF BY DEFAULT.
+            //
+            // The repair exists to cut off a facing page leaf that the detector absorbed. Measured
+            // on both photo sets, with the trace's own `corner_post.quad` (before the repair) as
+            // the counterfactual, it does that in about 2 photos out of 38 and damages the other 36:
+            //
+            //   holdout42  20 of 20 touched quads got WORSE (LOCK 15/20 -> 5/20, mean IoU
+            //              0.859 -> 0.766). Every one of them was trimmed INTO the paper.
+            //   owner110   16 of 18 got worse (LOCK 11/18 -> 10/18); 4 quads classified "page"
+            //              were re-classified "shrunk" by the repair itself.
+            //   combined   recall tracks (1 - strip) almost exactly, in both sets.
+            //
+            // Concrete case, `20261115_192321`: the corner model returns x 154..1148, the page
+            // ends at x 1064, and the repair cuts at x 1000 - so it locked the printed content
+            // block's edge and threw away 64 px of paper.
+            //
+            // The reason is visible in the numbers above: the fold lines M-LSD actually finds on
+            // these photos are TEXT-BLOCK edges, not the gutter. A pixel test for "is the
+            // discarded strip printed matter" was tried as a discriminator (`h58_trimclass.py`)
+            // and does NOT separate the good case from the bad one (both are inky), so the repair
+            // is switched off rather than re-thresholded on a signal that does not exist here.
+            //
+            // Rollback: set to true. The rule, its tests and its measurements are all still here.
+            if (MLSD_REPAIR_ENABLED) {
+                // SUBTASK H32: the pixel partial-page term (border-is-paper) needs luma samples;
+                // the bitmap is already in hand, so expose them as a lambda. The rule stays
+                // pure-Kotlin.
+                val lumaSampler = { x: Int, y: Int ->
+                    val px = x.coerceIn(0, bitmap.width - 1)
+                    val py = y.coerceIn(0, bitmap.height - 1)
+                    val c = bitmap.getPixel(px, py)
+                    ((0.299 * ((c shr 16) and 0xFF)) + (0.587 * ((c shr 8) and 0xFF)) +
+                        (0.114 * (c and 0xFF))) / 255.0
+                }
+                val outcome =
+                    MlsdMergeRepair.apply(pts, result.segments, bitmap.width, bitmap.height, lumaSampler)
+                if (outcome.applied && outcome.quad != null) {
+                    val ordered = MlsdMergeRepair.orderCorners(outcome.quad)
+                    val candidate = toQuad(ordered)
+                    if (candidate != null && isPlausiblePageQuad(candidate, frameW, frameH)) {
+                        // H31 "do no harm": a split along a TEXT edge makes the page narrower than
+                        // a page, a split along a real gutter takes a spread back to page
+                        // proportions. Only the latter may reach the warp — see
+                        // MlsdTrigger.acceptsRepair for the two measured conditions (sliver size +
+                        // direction of the aspect change).
+                        if (!MlsdTrigger.acceptsRepair(pts, ordered, outcome.stripFrac)) {
+                            reason = if (outcome.stripFrac < MlsdTrigger.REPAIR_MIN_STRIP) {
+                                "split_rejected_strip"
+                            } else {
+                                "split_rejected_aspect"
+                            }
                         } else {
-                            "split_rejected_aspect"
+                            current = candidate
+                            currentPts = ordered
+                            cachedFold = MlsdMergeRepair.fractionalOf(outcome)
+                            reason = "split(${outcome.side},strip=${MlsdMergeRepair.pct(outcome.stripFrac)})"
                         }
                     } else {
-                        current = candidate
-                        currentPts = ordered
-                        cachedFold = MlsdMergeRepair.fractionalOf(outcome)
-                        reason = "split(${outcome.side},strip=${MlsdMergeRepair.pct(outcome.stripFrac)})"
+                        reason = "split_rejected_gate"
                     }
                 } else {
-                    reason = "split_rejected_gate"
+                    reason = "corner(${outcome.reason})"
                 }
             } else {
-                reason = "corner(${outcome.reason})"
+                reason = "corner(repair_disabled)"
             }
         }
 
@@ -3204,6 +3234,21 @@ class OpenCvQuadPageDetector(
         private const val MAX_QUAD_ANGLE_DEG = 125.0
 
         // --- SUBTASK H30: M-LSD candidate gate ---------------------------------------------
+        /**
+         * Whether the M-LSD merge-repair may SPLIT a quad (cut off a facing leaf).
+         *
+         * Off by default. Measured on both photo sets, using the trace's `corner_post.quad` as the
+         * counterfactual: the split helped 2 of 38 photos it touched and damaged the other 36 -
+         * on the holdout it made 20 of 20 touched quads worse (LOCK 15/20 -> 5/20), and on
+         * owner110 it re-classified 4 correct "page" quads as "shrunk". Recall tracks
+         * `1 - strip` almost exactly on both sets, i.e. it removes paper, because the fold lines
+         * M-LSD finds on these photos are text-block edges rather than the gutter.
+         *
+         * See [applyMlsdEvidence] for the full measurement, and `tooling/h57_ab_repair.py`
+         * (holdout), `tooling/h57b_ab_owner.py` (owner110) and `tooling/h58_trimclass.py` (the
+         * unsuccessful pixel discriminator) for the scripts that produced it.
+         */
+        private const val MLSD_REPAIR_ENABLED = false
         /**
          * Minimum line support (fraction of the quad's perimeter backed by near-collinear
          * detected segments) for a line-derived square to replace the corner-model quad.

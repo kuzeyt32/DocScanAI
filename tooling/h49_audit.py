@@ -2,8 +2,15 @@
 """
 H49 - strict visual audit of the fresh 42-photo holdout.
 
-Why an audit instead of an IoU oracle
--------------------------------------
+STATUS: superseded for edge accuracy by `h50_quad_vs_mask.py`. Kept because it is the only
+per-photo failure-mode taxonomy (degenerate / inner box / spread union), which the mask score
+does not name. Its LOCK counts must NOT be quoted: a white page on a white table hides its own
+edge, so eye-level judgement over-credits coverage. Measured example: `20261115_192321` was
+called LOCK here, but its quad covers x 0.39-0.82 of a page that runs x 0.11-0.76 - a large
+miss that is invisible at contact-sheet scale.
+
+Why an audit at all
+-------------------
 The holdout was meant to be scored against SAM pseudo-GT. That oracle failed on this set: the
 photos are framed tightly on the book, so SAM's frame-sized box prompt segmented the whole scene,
 and every quad came back as the image border (measured: 39/42 quads had a corner on the frame
@@ -108,6 +115,12 @@ def main() -> int:
     lines = [
         "# Holdout 42 - strict visual audit",
         "",
+        "**Status: superseded for edge accuracy by `h50_quad_vs_mask.py`; do not quote the LOCK "
+        "counts below.** This file is kept for the failure-mode taxonomy only. A white page on a "
+        "white table hides its own edge, so eye-level judgement over-credits coverage - "
+        "`20261115_192321` was called LOCK here while its quad covers x 0.39-0.82 of a page that "
+        "runs x 0.11-0.76.",
+        "",
         f"{total} fresh photos (never used for tuning), detector build 0.3.16.",
         "",
         "| verdict | photos |",
@@ -117,11 +130,11 @@ def main() -> int:
         lines.append(f"| {k} | {counts[k]} |")
     lines += [
         "",
-        f"**{lock} / {total} ({100 * lock / total:.0f} %) locked the page on all four edges.**",
+        f"**{lock} / {total} ({100 * lock / total:.0f} %) were called LOCK by eye.** This number "
+        "is not a coverage measurement - see the status note at the top.",
         "",
-        f"Excluding the {counts['SPREAD']} photos where both leaves are fully visible and the target "
-        f"leaf is undefined: **{lock} / {len(scored)} ordinary photos are clean "
-        f"({100 * lock / len(scored):.0f} %)**.",
+        f"By eye, {counts['SPREAD']} photos had both leaves in the quad (correct under the owner's "
+        f"rule) and {counts['INNER']} locked a panel inside a page. Neither count is a measurement.",
         "",
         "## Gate behaviour on this set",
         "",
