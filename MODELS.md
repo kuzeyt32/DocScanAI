@@ -37,13 +37,28 @@ Multi-file models (SUBTASK H7) are downloaded per file, verified for exact byte 
 | **m1_boundary** | Boundary/edge map — *retained, no longer wired into detection* | **DexiNed** (dense extreme inception edge detector) | **≈ 45 MB** | MIT | Yes (pinned OpenCV Zoo export) | — |
 | m1b_boundary_seg *(alt)* | Page segmentation (better corners) | **U-Net / DeepLabV3-MobileNet** semantic segmentation | ≈ 5–25 MB | depends on weights | Self-export | Optional upgrade |
 | **m2_dewarp_grid** | Dewarp / flatten (**PRIMARY**, SUBTASK H7) | **UVDoc 45×31 grid** — graph + external-data sidecar | **31,831,242 B (≈ 31.9 MB)** | **Apache-2.0** | **Pinned ONNX (2 files)** | Fast (default) |
-| **m2_dewarp** | Dewarp fallback (image→image) | **UVDoc** — neural grid-based unwarping at ~712 px | **31,684,150 B** | Apache-2.0 | Convertible (self-export) | Fast (fallback) |
+| **m2_dewarp** | Dewarp fallback (image→image) | **UVDoc** — neural grid-based unwarping at ~712 px | **31,684,150 B** | Apache-2.0 | Convertible (self-export) | Fallback (grid's, tooling-only) |
 | **m2p_dewarp_plus** | Dewarp (higher quality) | **DRCNet / PaperEdge** or **DocTr++** | **≈ 100–300 MB** | MIT | Self-export | Quality (opt-in) |
 | **m2f_dewarp_fallback** | Dewarp (light fallback) | **DewarpNet WC** | **≈ 8 MB** | MIT | Community ONNX | Fallback |
 | **m3_shadow** | Neural shadow/illumination removal | **DocShadow** (or ShadowFormer) | **≈ 30–80 MB** | see repo | Self-export | Optional |
 | *classical* | Diffuse illumination normalize | OpenCV: blur-divide + CLAHE + gamma + WB | 0 MB | Apache-2.0 (OpenCV) | n/a | Always |
 
 **Locked defaults:** detection = **m1c_detect (DocAligner LCNet100 corner detector)** with a **classical multi-cue OpenCV** fallback (SUBTASK H4 — replaces DexiNed, see §2.0); dewarp = **m2_dewarp_grid (UVDoc 45×31 grid, one remap from the original still)**; image→image fallback = **m2_dewarp (UVDoc at ~712 px)**; enhancement = **classical OpenCV** (+ optional **m3_shadow**); classical fallback = **m2f_dewarp_fallback (DewarpNet WC)** → **classical TPS**.
+
+**What the app actually asks the user to download (SUBTASK H42).** The in-app model setup offers
+exactly the two artifacts the pipeline reads, totalling **~35 MB**:
+
+| Offered in the app | Why |
+|---|---|
+| `m1c_detect` (~4.8 MB) | the primary detector; without it detection is classical-only |
+| `m2_dewarp_grid` (~30 MB) | the primary dewarp; without it warping uses classical curvature correction |
+
+Everything else stays in the registry (`ModelRegistry`, `ModelSpec.userFacing = false`) so presence
+checks, `tooling/_provision_models.cmd` and the instrumented tests keep working, but it is **not
+advertised**: `m1_boundary` is no longer consulted by detection (§2.1), `m2_dewarp` is only the grid's
+fallback (§3.1), and `m2p_dewarp_plus` / `m2f_dewarp_fallback` / `m3_shadow` still carry `TODO`
+placeholder URLs (§3.2, §3.3, §4.2) so a download from them could only fail. `fastTierIds` is
+therefore exactly `[m1c_detect, m2_dewarp_grid]`.
 
 ---
 
