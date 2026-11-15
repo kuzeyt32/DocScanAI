@@ -1,0 +1,3 @@
+1. If an old DEBUG build is installed, remove it first: adb uninstall com.docscanai
+2. Install this release APK: adb install -r DocScanAI-0.3.13.apk
+3. No PC? Copy DocScanAI-0.3.13.apk to the phone and install it via the file manager.

@@ -1,0 +1,55 @@
+*.iml
+.gradle/
+/local.properties
+.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+/app/build
+*.apk
+*.aab
+*.hprof
+
+# e2e harness run artifacts (SUBTASK B) — outputs, not sources
+/tooling/out/
+
+# SUBTASK H10 — release signing material. NEVER commit these.
+keystore.properties
+keystore/
+
+# Machine-local data folders (junctions into the external cache on the dev box).
+# The photos/models themselves live outside the repo.
+/corpus_owner/
+/gallery/
+/tooling/out/
+
+# Personal photo corpora used by the instrumented tests. These are the owner's own
+# photographs (papers, tables, book spreads) and are NOT published. Only the manifests
+# (*.json: sizes, split labels, oracle corner coordinates) are tracked; the tooling that
+# rebuilds them is under tooling/ (see app/src/androidTest/assets/README.md).
+/app/src/androidTest/assets/owner110/*.jpg
+/app/src/androidTest/assets/corpus/
+/app/src/androidTest/assets/bookspread/*.jpg
+/app/src/androidTest/assets/bookspread_real/*.jpg
+/app/src/androidTest/assets/live_room/*.jpg
+/app/src/androidTest/assets/pencil/*.jpg
+
+# Generated evidence pages embed crops of the owner's own photographs, so they are built
+# locally and not published. Regenerate with tooling/h40_ink_report.py — see
+# docs/evidence/README.md. The measured summaries (*.md / *.json) ARE tracked.
+/docs/evidence/h39-ink/img/
+/docs/evidence/h39-ink/index.html
+
+# Kotlin / Gradle / Python scratch
+.kotlin/
+__pycache__/
+*.pyc
+
+# Local editor / OS noise
+*.log
+*.tmp
+*.bak
+~$*
+

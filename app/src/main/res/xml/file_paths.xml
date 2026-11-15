@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- App-private files (sessions + generated PDFs staged before publish). -->
+    <files-path
+        name="internal_files"
+        path="." />
+    <!-- Cache (temp PDF before MediaStore publish). -->
+    <cache-path
+        name="internal_cache"
+        path="." />
+    <!-- App-specific external storage (last-resort export fallback, §8.1). -->
+    <external-files-path
+        name="external_files"
+        path="." />
+    <!--
+      Public Documents/DocScanAI folder: only used on the API 26–28 legacy branch, where the PDF is
+      written with a plain File (§8.1). On API 29+ the file is published via MediaStore and served
+      from a `content://` Uri directly, so this entry is not exercised there.
+    -->
+    <external-path
+        name="public_documents"
+        path="Documents/DocScanAI/" />
+</paths>

@@ -1,0 +1,1154 @@
+{
+  "dataset": "real_bookspread",
+  "tier": "real",
+  "provenance_rule": "REAL photographs of real open books, downloaded from Wikimedia Commons (and Unsplash where noted). Per-file licence + attribution recorded; NC-licensed and licence-unknown files excluded. Originals cached at E:\\DocScanAI-cache\\bookspread_real\\original\\. The bundled renditions are downscaled to <= 1400 px long edge. Ground truth is an ANNOTATION: the target-page quad was drafted by the offline detector stack (tooling/h32_annotate.py) and then visually verified/corrected against the image; it is not a measured quantity.",
+  "annotation_method": "detector-draft + visual correction. h32_annotate.py `draft` runs the corner model + M-LSD fold search and proposes the target page (larger half of the fold split); the draft is rendered as an overlay; the agent verifies each overlay and confirms (gt='draft') or supplies corrected corner coordinates. Excluded images are recorded with a reason.",
+  "license_policy": "CC0 / CC-BY / CC-BY-SA / public-domain only; non-commercial licences rejected; attribution preserved verbatim per image.",
+  "counts": {
+    "images": 16,
+    "total_bytes": 5072066,
+    "skipped": 0
+  },
+  "items": [
+    {
+      "name": "rb001",
+      "tier": "real",
+      "scene": "real_spread_full",
+      "asset": "rb001.jpg",
+      "asset_bytes": 197678,
+      "asset_sha256": "7f604016cfafc34ff978f5d83f9577b95ed52595f843a2bc63f272795c77e810",
+      "width": 1280,
+      "height": 852,
+      "diagonal": 1537.6293441528749,
+      "gt_target_quad": [
+        [
+          578.5600000000001,
+          92.016
+        ],
+        [
+          1158.4,
+          163.584
+        ],
+        [
+          1116.16,
+          521.424
+        ],
+        [
+          572.16,
+          529.944
+        ]
+      ],
+      "gt_facing_quad": null,
+      "gt_alt_quad": [
+        [
+          96.0,
+          97.98
+        ],
+        [
+          578.5600000000001,
+          92.016
+        ],
+        [
+          572.16,
+          529.944
+        ],
+        [
+          83.2,
+          492.45599999999996
+        ]
+      ],
+      "facing_side": null,
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x852 (bundled)",
+        "quad_space": "frac",
+        "note": "Harvey De Motu Cordis, Wellcome. Studio photo, both pages fully seen. Gutter shadow visible. Merge rule must return ONE page."
+      },
+      "provenance": {
+        "title": "File:'De Motu Cordis', by William Harvey, Frankfurt, Germany, 162 Wellcome L0060483.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:%27De_Motu_Cordis%27,_by_William_Harvey,_Frankfurt,_Germany,_162_Wellcome_L0060483.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/f/fc/%27De_Motu_Cordis%27%2C_by_William_Harvey%2C_Frankfurt%2C_Germany%2C_162_Wellcome_L0060483.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by/4.0",
+        "usage_terms": "Creative Commons Attribution 4.0",
+        "attribution": "https://wellcomeimages.org/indexplus/obf_images/b1/54/d9f548efa6525d3ad491740cccbf.jpg\n\nGallery: https://wellcomeimages.org/indexplus/image/L0060483.html\nWellcome Collection gallery (2018-03-21): https://wellcomecollection.org/works/fw64t8k2 CC-BY-4.0",
+        "original_bytes": 199903,
+        "original_sha256": "e3af1f51ac3a5eda08a2954d8cf2c2bd203fe632c6fad1c41439b80f5184dac9",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb002",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb002.jpg",
+      "asset_bytes": 329434,
+      "asset_sha256": "54a6efa7b88af7da504f991ba35f94003f697b8a361af484cfa2e6b3a7cf69aa",
+      "width": 931,
+      "height": 1400,
+      "diagonal": 1681.2974156882535,
+      "gt_target_quad": [
+        [
+          260.68,
+          217.0
+        ],
+        [
+          679.63,
+          343.0
+        ],
+        [
+          577.22,
+          1029.0
+        ],
+        [
+          204.82,
+          861.0
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          189.0
+        ],
+        [
+          260.68,
+          217.0
+        ],
+        [
+          204.82,
+          861.0
+        ],
+        [
+          0.0,
+          728.0
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "931x1400 (bundled)",
+        "quad_space": "frac",
+        "note": "Herball title page (Wellcome). Owner case: camera on the title page, facing blank page cut at the left edge. Heavy perspective + page curvature."
+      },
+      "provenance": {
+        "title": "File:'The Herball or Generall Historie of Plants', book, London, Wellcome L0060528.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:%27The_Herball_or_Generall_Historie_of_Plants%27,_book,_London,_Wellcome_L0060528.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/%27The_Herball_or_Generall_Historie_of_Plants%27%2C_book%2C_London%2C_Wellcome_L0060528.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by/4.0",
+        "usage_terms": "Creative Commons Attribution 4.0",
+        "attribution": "https://wellcomeimages.org/indexplus/obf_images/c7/64/728dc15601d9da414b6842333390.jpg\n\nGallery: https://wellcomeimages.org/indexplus/image/L0060528.html\nWellcome Collection gallery (2018-03-21): https://wellcomecollection.org/works/t6dac9cu CC-BY-4.0",
+        "original_bytes": 635031,
+        "original_sha256": "8cbcb3150b703f76887bee6e23cbd77c9459683bda44d7d764c0f1256e0c153d",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb009",
+      "tier": "real",
+      "scene": "real_spread_full",
+      "asset": "rb009.jpg",
+      "asset_bytes": 333613,
+      "asset_sha256": "6620c085c49bb21de29da81085dd65e77b9729210ea109b77d591e0dd31c3dcb",
+      "width": 1280,
+      "height": 1010,
+      "diagonal": 1630.4907236779975,
+      "gt_target_quad": [
+        [
+          524.8,
+          25.25
+        ],
+        [
+          1254.4,
+          40.4
+        ],
+        [
+          1254.4,
+          969.5999999999999
+        ],
+        [
+          524.8,
+          979.6999999999999
+        ]
+      ],
+      "gt_facing_quad": null,
+      "gt_alt_quad": [
+        [
+          25.6,
+          30.299999999999997
+        ],
+        [
+          524.8,
+          25.25
+        ],
+        [
+          524.8,
+          979.6999999999999
+        ],
+        [
+          25.6,
+          969.5999999999999
+        ]
+      ],
+      "facing_side": null,
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x1010 (bundled)",
+        "quad_space": "frac",
+        "note": "Ornithological plate spread (MET). Flat spread, both pages seen, gutter shadow at x~0.40."
+      },
+      "provenance": {
+        "title": "File:-Spread from an Ornithological Book- MET DP367940.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:-Spread_from_an_Ornithological_Book-_MET_DP367940.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/1/17/-Spread_from_an_Ornithological_Book-_MET_DP367940.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "usage_terms": "Creative Commons Zero, Public Domain Dedication",
+        "attribution": "Eug\u00e8ne Atget",
+        "original_bytes": 339753,
+        "original_sha256": "a5456fb31f12009046ba3c9d31d6e045573c054820d1a265116a938d1c3eb1ea",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "search:intitle:book intitle:spread filemime:image/jpeg"
+        ]
+      }
+    },
+    {
+      "name": "rb010",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb010.jpg",
+      "asset_bytes": 502724,
+      "asset_sha256": "7286dd50473d46827e8bf0c7dbfae9de657f5970e68b3fb51f4ac5ea24941d70",
+      "width": 1280,
+      "height": 960,
+      "diagonal": 1600.0,
+      "gt_target_quad": [
+        [
+          595.2,
+          14.399999999999999
+        ],
+        [
+          1171.2,
+          72.0
+        ],
+        [
+          1158.4,
+          945.6
+        ],
+        [
+          569.6,
+          955.2
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          595.2,
+          14.399999999999999
+        ],
+        [
+          569.6,
+          955.2
+        ],
+        [
+          0.0,
+          960.0
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x960 (bundled)",
+        "quad_space": "frac",
+        "note": "12th-century vellum book (NYBG). Hand-held, hands at top, gutter shadow, heavy curvature. Faint ink density."
+      },
+      "provenance": {
+        "title": "File:12th-century vellum book at NYBG's Mertz Library.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:12th-century_vellum_book_at_NYBG%27s_Mertz_Library.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/5/57/12th-century_vellum_book_at_NYBG%27s_Mertz_Library.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 4.0",
+        "attribution": "Daniel Case",
+        "original_bytes": 507795,
+        "original_sha256": "a5564c55dfc4afd8dedc118ab2efd1e3075dab688df62038d9d91b3d2624dad5",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books",
+          "search:intitle:book filemime:image/jpeg incategory:\"Open books\""
+        ]
+      }
+    },
+    {
+      "name": "rb011",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb011.jpg",
+      "asset_bytes": 332594,
+      "asset_sha256": "4600ebe83483a79331bdbe570a02061db237debf707615bea03b35007e95f405",
+      "width": 1280,
+      "height": 960,
+      "diagonal": 1600.0,
+      "gt_target_quad": [
+        [
+          665.6,
+          124.80000000000001
+        ],
+        [
+          1081.6,
+          192.0
+        ],
+        [
+          1126.4,
+          849.6
+        ],
+        [
+          684.8000000000001,
+          825.6
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          38.4
+        ],
+        [
+          665.6,
+          124.80000000000001
+        ],
+        [
+          684.8000000000001,
+          825.6
+        ],
+        [
+          0.0,
+          868.8000000000001
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x960 (bundled)",
+        "quad_space": "frac",
+        "note": "Gersdorff Feldbuch der Wundartzney (Wellcome). Wound-man figure on the truncated page, text on the target page. Strong asymmetric content."
+      },
+      "provenance": {
+        "title": "File:1526 Gersdorff Wechtlin libro de cirug\u00eda de campa\u00f1a.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:1526_Gersdorff_Wechtlin_libro_de_cirug%C3%ADa_de_campa%C3%B1a.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/1526_Gersdorff_Wechtlin_libro_de_cirug%C3%ADa_de_campa%C3%B1a.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 4.0",
+        "attribution": "Hispalois",
+        "original_bytes": 335445,
+        "original_sha256": "0e654af4ab84a846d72d1caafac5295eb856997bbc471f1cb08923a16c70bd8e",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb012",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb012.jpg",
+      "asset_bytes": 368317,
+      "asset_sha256": "2759a25593bf8f1dbbf8a496b2fe46ef63914b29a4f9efc61870e2d156b3fe41",
+      "width": 1280,
+      "height": 960,
+      "diagonal": 1600.0,
+      "gt_target_quad": [
+        [
+          646.4,
+          177.6
+        ],
+        [
+          1184.0,
+          244.8
+        ],
+        [
+          1171.2,
+          878.4000000000001
+        ],
+        [
+          646.4,
+          811.1999999999999
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          24.0
+        ],
+        [
+          646.4,
+          177.6
+        ],
+        [
+          646.4,
+          811.1999999999999
+        ],
+        [
+          0.0,
+          686.4
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x960 (bundled)",
+        "quad_space": "frac",
+        "note": "Disputationes Camaldulenses (Urbino). Illuminated border vs figurative facing page; glass-case lighting, hardcover."
+      },
+      "provenance": {
+        "title": "File:179 Galleria Nazionale delle Marche (Urbino), Disputationes Camaldulenses, de C. Landino.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:179_Galleria_Nazionale_delle_Marche_(Urbino),_Disputationes_Camaldulenses,_de_C._Landino.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/179_Galleria_Nazionale_delle_Marche_%28Urbino%29%2C_Disputationes_Camaldulenses%2C_de_C._Landino.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 4.0",
+        "attribution": "Enric",
+        "original_bytes": 372721,
+        "original_sha256": "2a77ecd54dbe822c8815ca5f7130ac347a8eb68b80601e8d148407e7de1b8a2c",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb013",
+      "tier": "real",
+      "scene": "real_spread_full",
+      "asset": "rb013.jpg",
+      "asset_bytes": 263357,
+      "asset_sha256": "b863dfac86a23ea49aec3b374fd24a487bbaead22ce0fbc2d8ea814bc3c5d32e",
+      "width": 1280,
+      "height": 928,
+      "diagonal": 1581.00727386056,
+      "gt_target_quad": [
+        [
+          748.8,
+          139.2
+        ],
+        [
+          1107.2,
+          143.84
+        ],
+        [
+          1113.6,
+          918.72
+        ],
+        [
+          748.8,
+          914.08
+        ]
+      ],
+      "gt_facing_quad": null,
+      "gt_alt_quad": [
+        [
+          256.0,
+          139.2
+        ],
+        [
+          748.8,
+          139.2
+        ],
+        [
+          748.8,
+          914.08
+        ],
+        [
+          256.0,
+          918.72
+        ]
+      ],
+      "facing_side": null,
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x928 (bundled)",
+        "quad_space": "frac",
+        "note": "Auxanoscope manual (1887). Textbook spread, both pages seen; chapter figure on the verso, dense two-column text on the recto."
+      },
+      "provenance": {
+        "title": "File:1887 auxanoscope adapt\u00e9 pour la Ligue d'Enseignement.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:1887_auxanoscope_adapt%C3%A9_pour_la_Ligue_d%27Enseignement.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/8/86/1887_auxanoscope_adapt%C3%A9_pour_la_Ligue_d%27Enseignement.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 4.0",
+        "attribution": "Kevin Desmond",
+        "original_bytes": 265355,
+        "original_sha256": "c9b5816925e0cd9f9f10b356e712873651c578ddd3ce724bd03177cb6d09e0b7",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb014",
+      "tier": "real",
+      "scene": "real_spread_full",
+      "asset": "rb014.jpg",
+      "asset_bytes": 448830,
+      "asset_sha256": "be053df46a462f7666984be5de67c57125f19a1a9d60558da2240467e49ab5e6",
+      "width": 1015,
+      "height": 1400,
+      "diagonal": 1729.2267057849876,
+      "gt_target_quad": [
+        [
+          15.225,
+          21.0
+        ],
+        [
+          999.775,
+          28.0
+        ],
+        [
+          999.775,
+          665.0
+        ],
+        [
+          15.225,
+          665.0
+        ]
+      ],
+      "gt_facing_quad": null,
+      "gt_alt_quad": [
+        [
+          15.225,
+          707.0
+        ],
+        [
+          999.775,
+          700.0
+        ],
+        [
+          999.775,
+          1379.0
+        ],
+        [
+          15.225,
+          1386.0
+        ]
+      ],
+      "facing_side": null,
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1015x1400 (bundled)",
+        "quad_space": "frac",
+        "note": "Oiseau mecanique (1891). HORIZONTAL gutter at y~0.48 - the spine is not vertical; the split line search must handle it or do no harm."
+      },
+      "provenance": {
+        "title": "File:1891 oiseau-m\u00e9canique.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:1891_oiseau-m%C3%A9canique.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/1891_oiseau-m%C3%A9canique.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "Public domain",
+        "licence_url": "",
+        "usage_terms": "Public domain",
+        "attribution": "Raoul Marquis",
+        "original_bytes": 775524,
+        "original_sha256": "a8ef1d3f282eaf338329d7ed01fbfb502b61e9bc6be52eaa880c12eac5ef1de3",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb015",
+      "tier": "real",
+      "scene": "real_spread_full",
+      "asset": "rb015.jpg",
+      "asset_bytes": 354448,
+      "asset_sha256": "c8856b48c74748fd533e1740bc129a4c1d21486e716d5b838628fe2cee2bec37",
+      "width": 1280,
+      "height": 817,
+      "diagonal": 1518.515393402385,
+      "gt_target_quad": [
+        [
+          646.4,
+          28.595000000000002
+        ],
+        [
+          1241.6,
+          28.595000000000002
+        ],
+        [
+          1241.6,
+          804.745
+        ],
+        [
+          646.4,
+          804.745
+        ]
+      ],
+      "gt_facing_quad": null,
+      "gt_alt_quad": [
+        [
+          38.4,
+          28.595000000000002
+        ],
+        [
+          646.4,
+          28.595000000000002
+        ],
+        [
+          646.4,
+          804.745
+        ],
+        [
+          38.4,
+          804.745
+        ]
+      ],
+      "facing_side": null,
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x817 (bundled)",
+        "quad_space": "frac",
+        "note": "Parygin Public Mood (1966) textbook. Flat spread, two text pages, chapter header on the verso."
+      },
+      "provenance": {
+        "title": "File:1966 Boris Parygin Public Mood book spread.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:1966_Boris_Parygin_Public_Mood_book_spread.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/1/16/1966_Boris_Parygin_Public_Mood_book_spread.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "Public domain",
+        "licence_url": "",
+        "usage_terms": "Public domain",
+        "attribution": "Boris Parygin",
+        "original_bytes": 358252,
+        "original_sha256": "9ebf064bc0174b8077a8bbf4df17e3f29c288057e79d0c99c7374e9f5345a11e",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "search:intitle:book intitle:spread filemime:image/jpeg"
+        ]
+      }
+    },
+    {
+      "name": "rb018",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb018.jpg",
+      "asset_bytes": 288913,
+      "asset_sha256": "29543ad1cf918bc1db73a944ac2e47a3f29670c4fe21b026048a023ed24cff35",
+      "width": 1050,
+      "height": 1400,
+      "diagonal": 1750.0,
+      "gt_target_quad": [
+        [
+          120.75,
+          63.0
+        ],
+        [
+          1008.0,
+          28.0
+        ],
+        [
+          997.5,
+          1372.0
+        ],
+        [
+          105.0,
+          1393.0
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          28.0
+        ],
+        [
+          120.75,
+          63.0
+        ],
+        [
+          105.0,
+          1393.0
+        ],
+        [
+          0.0,
+          1400.0
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1050x1400 (bundled)",
+        "quad_space": "frac",
+        "note": "L'Estampe et l'Affiche (215). Hand-held magazine copy, curved page, gutter shadow at x~0.10, dense text + illustration."
+      },
+      "provenance": {
+        "title": "File:215 - Copy.JPG",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:215_-_Copy.JPG",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/215_-_Copy.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "Public domain",
+        "licence_url": "",
+        "usage_terms": "Public domain",
+        "attribution": "Pellatan",
+        "original_bytes": 447968,
+        "original_sha256": "9a648cca6385fd77792db3bcf8324cfcebddd4070828db9c4faba414cb48d96a",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb019",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb019.jpg",
+      "asset_bytes": 305166,
+      "asset_sha256": "24bb65b0efc8d925a97b53f1bc84aa905744c9c76cc377b61fa9df297498380c",
+      "width": 1050,
+      "height": 1400,
+      "diagonal": 1750.0,
+      "gt_target_quad": [
+        [
+          115.5,
+          28.0
+        ],
+        [
+          976.5,
+          42.0
+        ],
+        [
+          945.0,
+          1372.0
+        ],
+        [
+          105.0,
+          1358.0
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          115.5,
+          28.0
+        ],
+        [
+          105.0,
+          1358.0
+        ],
+        [
+          0.0,
+          1386.0
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1050x1400 (bundled)",
+        "quad_space": "frac",
+        "note": "L'Estampe et l'Affiche (226). Masthead + wood engraving + two text columns; warm tungsten light."
+      },
+      "provenance": {
+        "title": "File:226 - Copy.JPG",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:226_-_Copy.JPG",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/226_-_Copy.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "Public domain",
+        "licence_url": "",
+        "usage_terms": "Public domain",
+        "attribution": "Pellatan",
+        "original_bytes": 462743,
+        "original_sha256": "545e3f6188bbf69a112e55cd6b76c0a6d82c8dc87d7f2b5567a00c72435e2c06",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb020",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb020.jpg",
+      "asset_bytes": 376851,
+      "asset_sha256": "8ef5c7fb4f3695888c081d8835cc9b1fc66392073f421201a68c10801610e314",
+      "width": 1050,
+      "height": 1400,
+      "diagonal": 1750.0,
+      "gt_target_quad": [
+        [
+          120.75,
+          28.0
+        ],
+        [
+          1034.25,
+          28.0
+        ],
+        [
+          1023.75,
+          1379.0
+        ],
+        [
+          105.0,
+          1393.0
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          120.75,
+          28.0
+        ],
+        [
+          105.0,
+          1393.0
+        ],
+        [
+          0.0,
+          1400.0
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1050x1400 (bundled)",
+        "quad_space": "frac",
+        "note": "L'Estampe et l'Affiche (237). Full-page illustration (Locandiera poster) on the target page; tilted hand-held view."
+      },
+      "provenance": {
+        "title": "File:237 - Copy.JPG",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:237_-_Copy.JPG",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/237_-_Copy.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "Public domain",
+        "licence_url": "",
+        "usage_terms": "Public domain",
+        "attribution": "Pellatan",
+        "original_bytes": 575074,
+        "original_sha256": "7b51188cb7bd61700cf7f985ee01874e9b345aa9bda9949a9af8379e6963b111",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb021",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb021.jpg",
+      "asset_bytes": 406532,
+      "asset_sha256": "a47d91f68a3a41425ce5903cdd7b1043c65097a3899815c88b5fb122caa0da00",
+      "width": 1050,
+      "height": 1400,
+      "diagonal": 1750.0,
+      "gt_target_quad": [
+        [
+          126.0,
+          49.00000000000001
+        ],
+        [
+          1013.25,
+          42.0
+        ],
+        [
+          1002.75,
+          1386.0
+        ],
+        [
+          120.75,
+          1386.0
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          28.0
+        ],
+        [
+          126.0,
+          49.00000000000001
+        ],
+        [
+          120.75,
+          1386.0
+        ],
+        [
+          0.0,
+          1400.0
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1050x1400 (bundled)",
+        "quad_space": "frac",
+        "note": "L'Estampe et l'Affiche (249). Poster illustration + text columns; possible second sliver at the right edge to confirm in verify pass."
+      },
+      "provenance": {
+        "title": "File:249 - Copy.JPG",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:249_-_Copy.JPG",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/249_-_Copy.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "Public domain",
+        "licence_url": "",
+        "usage_terms": "Public domain",
+        "attribution": "Pellatan",
+        "original_bytes": 622157,
+        "original_sha256": "878d7ea9664bd94778fcb4e43b053fb5e04c2dd36278d1bc908f0024146c6869",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    },
+    {
+      "name": "rb022",
+      "tier": "real",
+      "scene": "real_blank_control",
+      "asset": "rb022.jpg",
+      "asset_bytes": 192033,
+      "asset_sha256": "634f40b532c0c9191e76929cd8ad018f8798fe98b09d72eb23c0d2f306bb1aed",
+      "width": 1280,
+      "height": 720,
+      "diagonal": 1468.6047800548656,
+      "gt_target_quad": [
+        [
+          512.0,
+          97.2
+        ],
+        [
+          1062.3999999999999,
+          97.2
+        ],
+        [
+          1049.6,
+          651.6
+        ],
+        [
+          505.6,
+          608.4
+        ]
+      ],
+      "gt_facing_quad": null,
+      "gt_alt_quad": [
+        [
+          147.20000000000002,
+          169.2
+        ],
+        [
+          512.0,
+          97.2
+        ],
+        [
+          505.6,
+          608.4
+        ],
+        [
+          172.8,
+          453.6
+        ]
+      ],
+      "facing_side": null,
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x720 (bundled)",
+        "quad_space": "frac",
+        "note": "3D-printed blank book on wood. Negative control: no text lines anywhere - the uniformity/text guards must do no harm."
+      },
+      "provenance": {
+        "title": "File:3D printed open book 1.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:3D_printed_open_book_1.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/5/51/3D_printed_open_book_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY-SA 3.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 3.0",
+        "attribution": "Nevit",
+        "original_bytes": 193991,
+        "original_sha256": "043f8dc1fca9225d04142c7c845f9c9ae5621099325b69ae1df2d88ecd8f3986",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books",
+          "search:intitle:book filemime:image/jpeg incategory:\"Open books\""
+        ]
+      }
+    },
+    {
+      "name": "rb028",
+      "tier": "real",
+      "scene": "real_spread_full",
+      "asset": "rb028.jpg",
+      "asset_bytes": 286613,
+      "asset_sha256": "d4d404ea0ba69cc10aea03974873f34a56ae81b14a1e193a2d4497ff3bf08645",
+      "width": 1280,
+      "height": 720,
+      "diagonal": 1468.6047800548656,
+      "gt_target_quad": [
+        [
+          646.4,
+          14.4
+        ],
+        [
+          1209.6,
+          32.4
+        ],
+        [
+          1190.4,
+          709.2
+        ],
+        [
+          640.0,
+          694.8
+        ]
+      ],
+      "gt_facing_quad": null,
+      "gt_alt_quad": [
+        [
+          96.0,
+          32.4
+        ],
+        [
+          646.4,
+          14.4
+        ],
+        [
+          640.0,
+          694.8
+        ],
+        [
+          83.2,
+          709.2
+        ]
+      ],
+      "facing_side": null,
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x720 (bundled)",
+        "quad_space": "frac",
+        "note": "Italian paperback (Unsplash-sourced via Commons). Both pages seen on a red table, low warm light, paperback curvature."
+      },
+      "provenance": {
+        "title": "File:A book.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:A_book.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/6/60/A_book.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 4.0",
+        "attribution": "Westmarch95",
+        "original_bytes": 289007,
+        "original_sha256": "5b8537c18db96d52f4107d8e087f829476805f188b6ca5710151d791ae898853",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books",
+          "search:intitle:book filemime:image/jpeg incategory:\"Open books\""
+        ]
+      }
+    },
+    {
+      "name": "rb034",
+      "tier": "real",
+      "scene": "real_partial_left",
+      "asset": "rb034.jpg",
+      "asset_bytes": 84963,
+      "asset_sha256": "c646574d27c18036d0507c083bcca89c05eba6c36e387bdd6e1c6b33a69913ef",
+      "width": 1280,
+      "height": 853,
+      "diagonal": 1538.1836691370768,
+      "gt_target_quad": [
+        [
+          428.8,
+          17.06
+        ],
+        [
+          1260.8,
+          17.06
+        ],
+        [
+          1260.8,
+          597.0999999999999
+        ],
+        [
+          428.8,
+          614.16
+        ]
+      ],
+      "gt_facing_quad": [
+        [
+          0.0,
+          17.06
+        ],
+        [
+          428.8,
+          17.06
+        ],
+        [
+          428.8,
+          614.16
+        ],
+        [
+          0.0,
+          597.0999999999999
+        ]
+      ],
+      "gt_alt_quad": null,
+      "facing_side": "left",
+      "annotation": {
+        "method": "visual_fraction_annotation",
+        "annotated_on": "fraction space 0..1 (grid overlay, reproducible)",
+        "scaled_to": "1280x853 (bundled)",
+        "quad_space": "frac",
+        "note": "Guest book signature page (Karlspreis 2026). Near-blank target page with handwriting; facing blank page cut at left. To confirm edges in verify pass."
+      },
+      "provenance": {
+        "title": "File:AC SO Karlspreis\u00fcbergabe 14.03.2026 Maria Kalesnikava - Eintrag in das goldene Buch I.jpg",
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:AC_SO_Karlspreis%C3%BCbergabe_14.03.2026_Maria_Kalesnikava_-_Eintrag_in_das_goldene_Buch_I.jpg",
+        "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/a/a2/AC_SO_Karlspreis%C3%BCbergabe_14.03.2026_Maria_Kalesnikava_-_Eintrag_in_das_goldene_Buch_I.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "licence_name": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 4.0",
+        "attribution": "Grunpfnul",
+        "original_bytes": 86413,
+        "original_sha256": "6d25932eff5c0aab83532bc9a7f8da6cbb94025318f988349e69f05bc643934d",
+        "rendition": "commons-thumb-1280",
+        "discovered_via": [
+          "category:Category:Open books"
+        ]
+      }
+    }
+  ],
+  "skipped": []
+}

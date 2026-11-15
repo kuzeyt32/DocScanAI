@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Minimal app theme. All real styling is done by the Compose Material 3 theme
+      (ui/theme/Theme.kt). This platform theme only needs to be a no-action-bar theme
+      so the single Activity can host Compose edge-to-edge.
+    -->
+    <style name="Theme.DocScanAI" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

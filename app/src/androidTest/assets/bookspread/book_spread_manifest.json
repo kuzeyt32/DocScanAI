@@ -1,0 +1,1161 @@
+{
+  "dataset": "bookspread-synthetic-v1",
+  "provenance_rule": "Synthetic by construction, and stated as such. The failure under test is 'one page of an open book with the facing page still visible as a sliver across a shadowed gutter'; real photographs of that scene do not carry exact corner coordinates, so ground truth here is exact by construction instead of estimated. No real photo is passed off as synthetic, and no synthetic frame is presented as real camera data.",
+  "generator": "tooling/h29_fixtures.py",
+  "generator_sha256": "1027ca7c431887d6a2b345b34d48d48cfbe6dc4be2e8dbc117b76ad2568e185e",
+  "determinism": "numpy default_rng(seed) per fixture, no timestamps; re-running regenerates byte-identical assets",
+  "still": {
+    "width": 3024,
+    "height": 4032,
+    "why": "12.2 MP, what ImageCapture(CAPTURE_MODE_MAXIMIZE_QUALITY) delivers on a current phone sensor; this is the import path"
+  },
+  "preview": {
+    "width": 1280,
+    "height": 720,
+    "why": "ImageAnalysis ResolutionSelector target (1280x720); live path"
+  },
+  "corner_order": "TL, TR, BR, BL of the target page, in image pixels",
+  "geometry": "one scene per fixture, composed as spread_fill (spread width / frame width) so both canvases hold the same page at the same relative size",
+  "items": [
+    {
+      "name": "bs01_control_clean",
+      "variant": "control_clean",
+      "sliver_side": null,
+      "sliver_fraction": 0.0,
+      "note": "single page, no gutter, mild perspective",
+      "seed": 2901,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": false
+      },
+      "still": {
+        "asset": "bs01_control_clean_still.jpg",
+        "asset_bytes": 1507881,
+        "asset_sha256": "ec34e3baf6817288e765d23ee7a64a625c60c41e20c9ce1fbf2c3eb280034be4",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.849,
+        "gt_page": [
+          [
+            213.406,
+            179.383
+          ],
+          [
+            2765.304,
+            169.976
+          ],
+          [
+            2769.875,
+            3795.788
+          ],
+          [
+            206.061,
+            3827.576
+          ]
+        ],
+        "gt_spread": [
+          [
+            213.406,
+            179.383
+          ],
+          [
+            2765.304,
+            169.976
+          ],
+          [
+            2769.875,
+            3795.788
+          ],
+          [
+            206.061,
+            3827.576
+          ]
+        ],
+        "gt_sliver": null
+      },
+      "preview": {
+        "asset": "bs01_control_clean_preview.jpg",
+        "asset_bytes": 136522,
+        "asset_sha256": "594e1f7d7e7605157bd3e89fd7d3ac8032ddb7ae0c92372ac0c91f97cdae514b",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.366,
+        "gt_page": [
+          [
+            403.04,
+            24.865
+          ],
+          [
+            868.696,
+            23.148
+          ],
+          [
+            869.53,
+            684.765
+          ],
+          [
+            401.7,
+            690.566
+          ]
+        ],
+        "gt_spread": [
+          [
+            403.04,
+            24.865
+          ],
+          [
+            868.696,
+            23.148
+          ],
+          [
+            869.53,
+            684.765
+          ],
+          [
+            401.7,
+            690.566
+          ]
+        ],
+        "gt_sliver": null
+      }
+    },
+    {
+      "name": "bs02_sliver_left_thin",
+      "variant": "sliver_left_thin",
+      "sliver_side": "left",
+      "sliver_fraction": 0.08,
+      "note": "8% facing-page sliver on the left",
+      "seed": 2902,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": true
+      },
+      "still": {
+        "asset": "bs02_sliver_left_thin_still.jpg",
+        "asset_bytes": 1525904,
+        "asset_sha256": "a4b3ca067ae762880588a28b7b40046226e05a8d7e571894f27811c1bc7ab6d7",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.896,
+        "gt_page": [
+          [
+            318.05,
+            255.499
+          ],
+          [
+            2858.305,
+            229.654
+          ],
+          [
+            2874.496,
+            3815.956
+          ],
+          [
+            356.369,
+            3778.58
+          ]
+        ],
+        "gt_spread": [
+          [
+            118.714,
+            257.527
+          ],
+          [
+            2858.305,
+            229.654
+          ],
+          [
+            2874.496,
+            3815.956
+          ],
+          [
+            158.735,
+            3775.647
+          ]
+        ],
+        "gt_sliver": [
+          [
+            118.714,
+            257.527
+          ],
+          [
+            318.05,
+            255.499
+          ],
+          [
+            356.369,
+            3778.58
+          ],
+          [
+            158.735,
+            3775.647
+          ]
+        ]
+      },
+      "preview": {
+        "asset": "bs02_sliver_left_thin_preview.jpg",
+        "asset_bytes": 139980,
+        "asset_sha256": "dbf1a485dbbb5993043e30f832a8c79a647e51d055c45794a75a90ed1a43cc85",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.395,
+        "gt_page": [
+          [
+            417.206,
+            31.486
+          ],
+          [
+            891.224,
+            26.664
+          ],
+          [
+            894.245,
+            695.876
+          ],
+          [
+            424.357,
+            688.902
+          ]
+        ],
+        "gt_spread": [
+          [
+            380.009,
+            31.865
+          ],
+          [
+            891.224,
+            26.664
+          ],
+          [
+            894.245,
+            695.876
+          ],
+          [
+            387.478,
+            688.354
+          ]
+        ],
+        "gt_sliver": [
+          [
+            380.009,
+            31.865
+          ],
+          [
+            417.206,
+            31.486
+          ],
+          [
+            424.357,
+            688.902
+          ],
+          [
+            387.478,
+            688.354
+          ]
+        ]
+      }
+    },
+    {
+      "name": "bs03_sliver_right_thin",
+      "variant": "sliver_right_thin",
+      "sliver_side": "right",
+      "sliver_fraction": 0.08,
+      "note": "8% facing-page sliver on the right",
+      "seed": 2903,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": true
+      },
+      "still": {
+        "asset": "bs03_sliver_right_thin_still.jpg",
+        "asset_bytes": 1554424,
+        "asset_sha256": "867f5ddebb1b2bfcc56392839cc58da994851defe67c02ab10e17162852c768f",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.896,
+        "gt_page": [
+          [
+            151.015,
+            271.168
+          ],
+          [
+            2688.043,
+            215.172
+          ],
+          [
+            2665.677,
+            3770.011
+          ],
+          [
+            180.663,
+            3801.646
+          ]
+        ],
+        "gt_spread": [
+          [
+            151.015,
+            271.168
+          ],
+          [
+            2892.477,
+            210.66
+          ],
+          [
+            2865.89,
+            3767.462
+          ],
+          [
+            180.663,
+            3801.646
+          ]
+        ],
+        "gt_sliver": [
+          [
+            2688.043,
+            215.172
+          ],
+          [
+            2892.477,
+            210.66
+          ],
+          [
+            2865.89,
+            3767.462
+          ],
+          [
+            2665.677,
+            3770.011
+          ]
+        ]
+      },
+      "preview": {
+        "asset": "bs03_sliver_right_thin_preview.jpg",
+        "asset_bytes": 145405,
+        "asset_sha256": "3af3b63f97dc44781ac2c2a95a1a6ea8f235d588bb2c66f54b223492e108f7e6",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.395,
+        "gt_page": [
+          [
+            386.037,
+            34.41
+          ],
+          [
+            859.452,
+            23.961
+          ],
+          [
+            855.279,
+            687.303
+          ],
+          [
+            391.569,
+            693.206
+          ]
+        ],
+        "gt_spread": [
+          [
+            386.037,
+            34.41
+          ],
+          [
+            897.6,
+            23.119
+          ],
+          [
+            892.639,
+            686.827
+          ],
+          [
+            391.569,
+            693.206
+          ]
+        ],
+        "gt_sliver": [
+          [
+            859.452,
+            23.961
+          ],
+          [
+            897.6,
+            23.119
+          ],
+          [
+            892.639,
+            686.827
+          ],
+          [
+            855.279,
+            687.303
+          ]
+        ]
+      }
+    },
+    {
+      "name": "bs04_sliver_left_medium",
+      "variant": "sliver_left_medium",
+      "sliver_side": "left",
+      "sliver_fraction": 0.18,
+      "note": "18% sliver on the left",
+      "seed": 2904,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": true
+      },
+      "still": {
+        "asset": "bs04_sliver_left_medium_still.jpg",
+        "asset_bytes": 1525705,
+        "asset_sha256": "538d15f6bde2dae64318005db672518e09a3b55f4dd3c3012a59aff2fd9b6c32",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.934,
+        "gt_page": [
+          [
+            523.231,
+            306.66
+          ],
+          [
+            2931.214,
+            310.456
+          ],
+          [
+            2955.806,
+            3706.187
+          ],
+          [
+            497.855,
+            3702.061
+          ]
+        ],
+        "gt_spread": [
+          [
+            89.831,
+            305.976
+          ],
+          [
+            2931.214,
+            310.456
+          ],
+          [
+            2955.806,
+            3706.187
+          ],
+          [
+            55.462,
+            3701.319
+          ]
+        ],
+        "gt_sliver": [
+          [
+            89.831,
+            305.976
+          ],
+          [
+            523.231,
+            306.66
+          ],
+          [
+            497.855,
+            3702.061
+          ],
+          [
+            55.462,
+            3701.319
+          ]
+        ]
+      },
+      "preview": {
+        "asset": "bs04_sliver_left_medium_preview.jpg",
+        "asset_bytes": 139394,
+        "asset_sha256": "7fa98d0a923bd936cb8ec97381a4d3cd83fd3d919caf434fe30f485bff090d66",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.431,
+        "gt_page": [
+          [
+            446.868,
+            26.123
+          ],
+          [
+            917.209,
+            26.864
+          ],
+          [
+            922.012,
+            690.136
+          ],
+          [
+            441.912,
+            689.33
+          ]
+        ],
+        "gt_spread": [
+          [
+            362.214,
+            25.989
+          ],
+          [
+            917.209,
+            26.864
+          ],
+          [
+            922.012,
+            690.136
+          ],
+          [
+            355.501,
+            689.185
+          ]
+        ],
+        "gt_sliver": [
+          [
+            362.214,
+            25.989
+          ],
+          [
+            446.868,
+            26.123
+          ],
+          [
+            441.912,
+            689.33
+          ],
+          [
+            355.501,
+            689.185
+          ]
+        ]
+      }
+    },
+    {
+      "name": "bs05_sliver_right_large",
+      "variant": "sliver_right_large",
+      "sliver_side": "right",
+      "sliver_fraction": 0.35,
+      "note": "35% sliver on the right",
+      "seed": 2905,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": true
+      },
+      "still": {
+        "asset": "bs05_sliver_right_large_still.jpg",
+        "asset_bytes": 1505649,
+        "asset_sha256": "8f9c5af77cacdc453563258288a3d65871d75bb614b3eecd51d4578f26a44f68",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.942,
+        "gt_page": [
+          [
+            116.092,
+            526.427
+          ],
+          [
+            2230.139,
+            533.451
+          ],
+          [
+            2209.114,
+            3539.514
+          ],
+          [
+            129.385,
+            3542.389
+          ]
+        ],
+        "gt_spread": [
+          [
+            116.092,
+            526.427
+          ],
+          [
+            2966.765,
+            535.898
+          ],
+          [
+            2933.834,
+            3538.512
+          ],
+          [
+            129.385,
+            3542.389
+          ]
+        ],
+        "gt_sliver": [
+          [
+            2230.139,
+            533.451
+          ],
+          [
+            2966.765,
+            535.898
+          ],
+          [
+            2933.834,
+            3538.512
+          ],
+          [
+            2209.114,
+            3539.514
+          ]
+        ]
+      },
+      "preview": {
+        "asset": "bs05_sliver_right_large_preview.jpg",
+        "asset_bytes": 144115,
+        "asset_sha256": "25f82dad4780c4172e56bf660cec9eded65f295acbd08de90bcca9376046ef78",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.494,
+        "gt_page": [
+          [
+            330.143,
+            29.352
+          ],
+          [
+            799.409,
+            30.911
+          ],
+          [
+            794.742,
+            698.182
+          ],
+          [
+            333.094,
+            698.82
+          ]
+        ],
+        "gt_spread": [
+          [
+            330.143,
+            29.352
+          ],
+          [
+            962.922,
+            31.454
+          ],
+          [
+            955.612,
+            697.96
+          ],
+          [
+            333.094,
+            698.82
+          ]
+        ],
+        "gt_sliver": [
+          [
+            799.409,
+            30.911
+          ],
+          [
+            962.922,
+            31.454
+          ],
+          [
+            955.612,
+            697.96
+          ],
+          [
+            794.742,
+            698.182
+          ]
+        ]
+      }
+    },
+    {
+      "name": "bs06_gutter_only",
+      "variant": "gutter_only",
+      "sliver_side": "right",
+      "sliver_fraction": 0.0,
+      "note": "no facing page; strong gutter shadow inside the right edge",
+      "seed": 2906,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": false
+      },
+      "still": {
+        "asset": "bs06_gutter_only_still.jpg",
+        "asset_bytes": 1514799,
+        "asset_sha256": "99342b7e785de15ee4c842c8e454c06b5290f05a9661ba96e5125cf04e887d10",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.83,
+        "gt_page": [
+          [
+            296.052,
+            199.068
+          ],
+          [
+            2767.134,
+            279.771
+          ],
+          [
+            2781.524,
+            3777.485
+          ],
+          [
+            226.165,
+            3812.419
+          ]
+        ],
+        "gt_spread": [
+          [
+            296.052,
+            199.068
+          ],
+          [
+            2767.134,
+            279.771
+          ],
+          [
+            2781.524,
+            3777.485
+          ],
+          [
+            226.165,
+            3812.419
+          ]
+        ],
+        "gt_sliver": null
+      },
+      "preview": {
+        "asset": "bs06_gutter_only_preview.jpg",
+        "asset_bytes": 137078,
+        "asset_sha256": "f134b0701c55559903c5e077d011f7b643bc97bc6f21ce1617594fed5ff87659",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.366,
+        "gt_page": [
+          [
+            413.042,
+            20.867
+          ],
+          [
+            874.273,
+            35.93
+          ],
+          [
+            876.958,
+            688.783
+          ],
+          [
+            399.997,
+            695.304
+          ]
+        ],
+        "gt_spread": [
+          [
+            413.042,
+            20.867
+          ],
+          [
+            874.273,
+            35.93
+          ],
+          [
+            876.958,
+            688.783
+          ],
+          [
+            399.997,
+            695.304
+          ]
+        ],
+        "gt_sliver": null
+      }
+    },
+    {
+      "name": "bs07_curved_spine",
+      "variant": "curved_spine",
+      "sliver_side": "left",
+      "sliver_fraction": 0.12,
+      "note": "12% sliver + visibly curved page outline",
+      "seed": 2907,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": true
+      },
+      "still": {
+        "asset": "bs07_curved_spine_still.jpg",
+        "asset_bytes": 1518171,
+        "asset_sha256": "f7f9289e8c543f1f51736738b8d6d9a2c9201bddc837165b3d62c0a56d37b066",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.908,
+        "gt_page": [
+          [
+            456.93,
+            302.241
+          ],
+          [
+            2836.473,
+            300.507
+          ],
+          [
+            2838.575,
+            3738.175
+          ],
+          [
+            459.503,
+            3724.537
+          ]
+        ],
+        "gt_spread": [
+          [
+            172.814,
+            302.448
+          ],
+          [
+            2836.473,
+            300.507
+          ],
+          [
+            2838.575,
+            3738.175
+          ],
+          [
+            175.444,
+            3722.909
+          ]
+        ],
+        "gt_sliver": [
+          [
+            172.814,
+            302.448
+          ],
+          [
+            456.93,
+            302.241
+          ],
+          [
+            459.503,
+            3724.537
+          ],
+          [
+            175.444,
+            3722.909
+          ]
+        ]
+      },
+      "preview": {
+        "asset": "bs07_curved_spine_preview.jpg",
+        "asset_bytes": 137211,
+        "asset_sha256": "6df911488b88b46278ff417077d7e48d874b0c3a085fcf24cf4719e84fbf2a42",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.41,
+        "gt_page": [
+          [
+            438.346,
+            32.451
+          ],
+          [
+            893.145,
+            32.12
+          ],
+          [
+            893.547,
+            689.157
+          ],
+          [
+            438.838,
+            686.551
+          ]
+        ],
+        "gt_spread": [
+          [
+            384.043,
+            32.491
+          ],
+          [
+            893.145,
+            32.12
+          ],
+          [
+            893.547,
+            689.157
+          ],
+          [
+            384.546,
+            686.24
+          ]
+        ],
+        "gt_sliver": [
+          [
+            384.043,
+            32.491
+          ],
+          [
+            438.346,
+            32.451
+          ],
+          [
+            438.838,
+            686.551
+          ],
+          [
+            384.546,
+            686.24
+          ]
+        ]
+      }
+    },
+    {
+      "name": "bs08_sliver_left_lowlight",
+      "variant": "sliver_left_lowlight",
+      "sliver_side": "left",
+      "sliver_fraction": 0.08,
+      "note": "thin sliver, uneven dim lighting, low contrast",
+      "seed": 2908,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": true
+      },
+      "still": {
+        "asset": "bs08_sliver_left_lowlight_still.jpg",
+        "asset_bytes": 1488928,
+        "asset_sha256": "b2d0c57b94821d66f948986782d02844f02a909050ac5f9c0a9da430981f7ed2",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.876,
+        "gt_page": [
+          [
+            388.798,
+            276.413
+          ],
+          [
+            2783.013,
+            300.306
+          ],
+          [
+            2851.238,
+            3731.003
+          ],
+          [
+            368.256,
+            3735.919
+          ]
+        ],
+        "gt_spread": [
+          [
+            195.534,
+            274.485
+          ],
+          [
+            2783.013,
+            300.306
+          ],
+          [
+            2851.238,
+            3731.003
+          ],
+          [
+            167.759,
+            3736.316
+          ]
+        ],
+        "gt_sliver": [
+          [
+            195.534,
+            274.485
+          ],
+          [
+            388.798,
+            276.413
+          ],
+          [
+            368.256,
+            3735.919
+          ],
+          [
+            167.759,
+            3736.316
+          ]
+        ]
+      },
+      "preview": {
+        "asset": "bs08_sliver_left_lowlight_preview.jpg",
+        "asset_bytes": 136936,
+        "asset_sha256": "a43f032841d31daaaacfd5fc8d4d12fd45c66ee7904c28de742fbab04717f9f0",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.395,
+        "gt_page": [
+          [
+            425.623,
+            27.978
+          ],
+          [
+            882.589,
+            32.538
+          ],
+          [
+            895.611,
+            687.33
+          ],
+          [
+            421.702,
+            688.268
+          ]
+        ],
+        "gt_spread": [
+          [
+            388.736,
+            27.61
+          ],
+          [
+            882.589,
+            32.538
+          ],
+          [
+            895.611,
+            687.33
+          ],
+          [
+            383.435,
+            688.344
+          ]
+        ],
+        "gt_sliver": [
+          [
+            388.736,
+            27.61
+          ],
+          [
+            425.623,
+            27.978
+          ],
+          [
+            421.702,
+            688.268
+          ],
+          [
+            383.435,
+            688.344
+          ]
+        ]
+      }
+    },
+    {
+      "name": "bs09_control_strong_persp",
+      "variant": "control_strong_persp",
+      "sliver_side": null,
+      "sliver_fraction": 0.0,
+      "note": "clean control with strong perspective",
+      "seed": 2909,
+      "expects": {
+        "page_visible": true,
+        "sliver_merge_risk": false
+      },
+      "still": {
+        "asset": "bs09_control_strong_persp_still.jpg",
+        "asset_bytes": 1522457,
+        "asset_sha256": "2775fe9902f471a8732f008fb258741152b46c1e9ab969934c13b0950aa1988d",
+        "width": 3024,
+        "height": 4032,
+        "diagonal": 5040.0,
+        "spread_fill": 0.811,
+        "gt_page": [
+          [
+            403.262,
+            292.616
+          ],
+          [
+            2751.355,
+            201.827
+          ],
+          [
+            2834.393,
+            3759.132
+          ],
+          [
+            286.525,
+            3751.217
+          ]
+        ],
+        "gt_spread": [
+          [
+            403.262,
+            292.616
+          ],
+          [
+            2751.355,
+            201.827
+          ],
+          [
+            2834.393,
+            3759.132
+          ],
+          [
+            286.525,
+            3751.217
+          ]
+        ],
+        "gt_sliver": null
+      },
+      "preview": {
+        "asset": "bs09_control_strong_persp_preview.jpg",
+        "asset_bytes": 141291,
+        "asset_sha256": "afb8396016716b81ac9b6a915f5bc9bb788d6cd711c513e3c526faa0ae103b43",
+        "width": 1280,
+        "height": 720,
+        "diagonal": 1468.605,
+        "spread_fill": 0.366,
+        "gt_page": [
+          [
+            428.204,
+            30.792
+          ],
+          [
+            876.747,
+            13.449
+          ],
+          [
+            892.609,
+            692.98
+          ],
+          [
+            405.905,
+            691.468
+          ]
+        ],
+        "gt_spread": [
+          [
+            428.204,
+            30.792
+          ],
+          [
+            876.747,
+            13.449
+          ],
+          [
+            892.609,
+            692.98
+          ],
+          [
+            405.905,
+            691.468
+          ]
+        ],
+        "gt_sliver": null
+      }
+    }
+  ]
+}

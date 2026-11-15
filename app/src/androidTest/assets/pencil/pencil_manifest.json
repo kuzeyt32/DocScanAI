@@ -1,0 +1,410 @@
+{
+  "dataset": "real-pencil-handwriting-v1",
+  "provenance_rule": "Real, already-collected data from the internet is preferred over generated data for every evaluation. Every file below is a genuine pencil-on-paper scan; none is synthetic.",
+  "source": "Wikimedia Commons (imageinfo API), queried by tooling/h23_fetch_real.py",
+  "fetched_utc": "2026-10-18T12:13:37Z",
+  "pages": 12,
+  "long_edge": 1400,
+  "jpeg_quality": 85,
+  "selection_rule": "catalogue says 'pencil'; public-domain/CC licence; local stroke_fraction in [0.010, 0.350] at 10 grey levels below a sigma=10 px background; stroke depth p95 in [12, 90] levels",
+  "rejected": [
+    {
+      "title": "File:Letter draft Gilliéron 1906 Summer Olympics EFA Louvre2024 No 13.jpg",
+      "reason": "not catalogued as pencil"
+    },
+    {
+      "title": "File:Manuscript Letter of Louise Michel to Ernest Vaughan from prison, s.d. (ca. 1883-1886) (verso) (16534776958).jpg",
+      "reason": "not catalogued as pencil"
+    },
+    {
+      "title": "File:Letter to Miss Georgia McKee dated December 23, 1878 from Theodore H. Barrett, Herman, Minnesota - DPLA - 695931bb0cb5a3dcdb0061d5b40c421d (page 5).jpg",
+      "reason": "not catalogued as pencil"
+    },
+    {
+      "title": "File:Letter signed W.G. Eliot, St. Louis, to James Freeman Clark, November 14, 1861 - DPLA - 57ebcb718bb0be48431c8467b1945f32 (page 3).jpg",
+      "reason": "not catalogued as pencil"
+    },
+    {
+      "title": "File:Letter signed W.G. Eliot, St. Louis, to James Freeman Clark, November 14, 1861.jpg",
+      "reason": "not catalogued as pencil"
+    },
+    {
+      "title": "File:Original pencil manuscript of short story, \"Ti Frere,\" by Kate Chopin, 1896 - DPLA - b43916b8a4f17a5e7ff1c7e947abdb5b (page 1).jpg",
+      "reason": "duplicate of File:Original pencil manuscript of short story, \"Ti Frere,\" "
+    }
+  ],
+  "items": [
+    {
+      "asset": "pencil_real_00.jpg",
+      "asset_bytes": 187449,
+      "asset_sha256": "3b5bb70c2927f8b6e921d62376e59d340d618dce0181970df819200198f1dd6a",
+      "asset_size": [
+        943,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Ti Frere,\" by Kate Chopin, 1896.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Ti_Frere%2C%22_by_Kate_Chopin%2C_1896.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Original_pencil_manuscript_of_short_story%2C_%22Ti_Frere%2C%22_by_Kate_Chopin%2C_1896.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Original_pencil_manuscript_of_short_story%2C_%22Ti_Frere%2C%22_by_Kate_Chopin%2C_1896.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Ti_Frere%2C%22_by_Kate_Chopin%2C_1896.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 427488,
+      "original_sha256": "b2cfbbe4786a3b30a9183eb3cc11e38f11b9584712e5a1b8ee0d372e4870f942",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 181.0,
+        "dark_level": 45.0,
+        "ink_delta": 136.0,
+        "stroke_fraction": 0.05793,
+        "stroke_depth_p95": 64.0,
+        "paper_noise_sigma": 8.97,
+        "candidate_index": 22
+      }
+    },
+    {
+      "asset": "pencil_real_01.jpg",
+      "asset_bytes": 176265,
+      "asset_sha256": "56cdf57181604256daeaece3bd9b784b9e3bcb1c1322130f375e645df775c201",
+      "asset_size": [
+        908,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 2).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_2%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/5/50/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_2%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 418699,
+      "original_sha256": "2f36cefc47b4588374d0bc75c0c99899a5b36a8e485448ddd1a5e6190d6e8bbf",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 194.0,
+        "dark_level": 166.0,
+        "ink_delta": 28.0,
+        "stroke_fraction": 0.09266,
+        "stroke_depth_p95": 37.0,
+        "paper_noise_sigma": 5.67,
+        "candidate_index": 24
+      }
+    },
+    {
+      "asset": "pencil_real_02.jpg",
+      "asset_bytes": 161760,
+      "asset_sha256": "e7a51d7fc87cda77eda9ce9374be859086bc5c204e4853123fd07ec9072cfeac",
+      "asset_size": [
+        908,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 5).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_5%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_5%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_5%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_5%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 387045,
+      "original_sha256": "60c5b6f7536c472535adf36158dce3023485bd2727af331a29b31a02f8280f9c",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 200.0,
+        "dark_level": 172.0,
+        "ink_delta": 28.0,
+        "stroke_fraction": 0.08125,
+        "stroke_depth_p95": 32.0,
+        "paper_noise_sigma": 5.52,
+        "candidate_index": 25
+      }
+    },
+    {
+      "asset": "pencil_real_03.jpg",
+      "asset_bytes": 179184,
+      "asset_sha256": "feee12134721e2db6a56c320b29ed09730e963f427f90ef38c1107304ac00155",
+      "asset_size": [
+        911,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 32).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_32%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_32%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_32%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_32%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 406699,
+      "original_sha256": "292fba8a3548e79427c751a8a42ee48333c848acd1d7897ea7ceeb587adf3ac7",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 211.0,
+        "dark_level": 172.0,
+        "ink_delta": 39.0,
+        "stroke_fraction": 0.111,
+        "stroke_depth_p95": 38.0,
+        "paper_noise_sigma": 5.38,
+        "candidate_index": 26
+      }
+    },
+    {
+      "asset": "pencil_real_04.jpg",
+      "asset_bytes": 179128,
+      "asset_sha256": "052ffd55fa2b248215b8a15bfd16687366b87fefa77e6eaab12455619d645e8c",
+      "asset_size": [
+        912,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 41).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_41%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_41%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_41%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_41%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 408696,
+      "original_sha256": "cdcad3dce554e81b58748d65a91b6af8c6e6f8007923cf7b09732b78d326aac0",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 215.0,
+        "dark_level": 177.0,
+        "ink_delta": 38.0,
+        "stroke_fraction": 0.10589,
+        "stroke_depth_p95": 42.0,
+        "paper_noise_sigma": 5.21,
+        "candidate_index": 27
+      }
+    },
+    {
+      "asset": "pencil_real_05.jpg",
+      "asset_bytes": 178609,
+      "asset_sha256": "d88e0ebe630ef9eac483feb02cdac5737d503ecf568c2721ecec9e27bd3b6cce",
+      "asset_size": [
+        913,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 47).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_47%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_47%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_47%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_47%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 403953,
+      "original_sha256": "301a737b4a431ac7daaf049c518eba384f88f67ea31c4f0cb233e06b0c084767",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 213.0,
+        "dark_level": 177.0,
+        "ink_delta": 36.0,
+        "stroke_fraction": 0.0961,
+        "stroke_depth_p95": 44.0,
+        "paper_noise_sigma": 5.11,
+        "candidate_index": 28
+      }
+    },
+    {
+      "asset": "pencil_real_06.jpg",
+      "asset_bytes": 182351,
+      "asset_sha256": "7afe25605c8547c4195c436815715fcce4f064be5b3e9ea4838ee83056300903",
+      "asset_size": [
+        913,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 43).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_43%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_43%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_43%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_43%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 408018,
+      "original_sha256": "56d585364893593b18690c9204f4ce71eb592bfd9b5e598552520d8fca41dd96",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 215.0,
+        "dark_level": 177.0,
+        "ink_delta": 38.0,
+        "stroke_fraction": 0.11538,
+        "stroke_depth_p95": 42.0,
+        "paper_noise_sigma": 5.18,
+        "candidate_index": 29
+      }
+    },
+    {
+      "asset": "pencil_real_07.jpg",
+      "asset_bytes": 177405,
+      "asset_sha256": "186d60dcc920fc01e3286941955626578f0a0530887dbaa8272bfd544ef4c07a",
+      "asset_size": [
+        913,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 61).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_61%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_61%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_61%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_61%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 413356,
+      "original_sha256": "77c0042e8ad4fcd4403f0fc28f7d0bd9c34e5afa98fe8daa24339dbca03772e5",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 204.0,
+        "dark_level": 172.0,
+        "ink_delta": 32.0,
+        "stroke_fraction": 0.09216,
+        "stroke_depth_p95": 52.0,
+        "paper_noise_sigma": 5.75,
+        "candidate_index": 30
+      }
+    },
+    {
+      "asset": "pencil_real_08.jpg",
+      "asset_bytes": 173320,
+      "asset_sha256": "74b5fe482b2df090b73e40ebb85f437b09336614bbdae0eca53717d0af0dabc7",
+      "asset_size": [
+        914,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 31).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_31%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_31%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_31%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_31%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 384326,
+      "original_sha256": "64d8cb2939fb23977e5a2199bc7f17e21d4fd361161062c334925f509fc8ee39",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 215.0,
+        "dark_level": 175.0,
+        "ink_delta": 40.0,
+        "stroke_fraction": 0.11301,
+        "stroke_depth_p95": 39.0,
+        "paper_noise_sigma": 5.21,
+        "candidate_index": 31
+      }
+    },
+    {
+      "asset": "pencil_real_09.jpg",
+      "asset_bytes": 181110,
+      "asset_sha256": "634a8cde7a29ae5f504ce74bed8218d211e77f34997904f0fa0b8da8de322beb",
+      "asset_size": [
+        925,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 40).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_40%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_40%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_40%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_40%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 398860,
+      "original_sha256": "be62f32583ee35b659d313bf8142f8db49918411f0365869d8fd6a4cca6fe950",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 215.0,
+        "dark_level": 177.0,
+        "ink_delta": 38.0,
+        "stroke_fraction": 0.1056,
+        "stroke_depth_p95": 41.0,
+        "paper_noise_sigma": 5.11,
+        "candidate_index": 32
+      }
+    },
+    {
+      "asset": "pencil_real_10.jpg",
+      "asset_bytes": 209100,
+      "asset_sha256": "33b9d18529354250fd434208c7f53bc3c72567806fb26def74b45c2b24b9d571",
+      "asset_size": [
+        925,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 55).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_55%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_55%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_55%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_55%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 449032,
+      "original_sha256": "317d71442f9bd9b230c6367861e6055adb587d1e334bf8b10dcdb0e137bcf279",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 209.0,
+        "dark_level": 173.0,
+        "ink_delta": 36.0,
+        "stroke_fraction": 0.12621,
+        "stroke_depth_p95": 53.0,
+        "paper_noise_sigma": 5.83,
+        "candidate_index": 33
+      }
+    },
+    {
+      "asset": "pencil_real_11.jpg",
+      "asset_bytes": 172379,
+      "asset_sha256": "1c5287de9c8a70afdbc1ace56fc4a326338be7d7d4967675d09ca0544c7380b0",
+      "asset_size": [
+        905,
+        1400
+      ],
+      "title": "File:Original pencil manuscript of short story, \"Jacques\" (partial draft), by Kate Chopin, 1900 - DPLA - d8d88bf3f113e12a7584dcbfb1ecbfce (page 62).jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File%3AOriginal_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_62%29.jpg",
+      "direct_file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_62%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "downloaded_file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_62%29.jpg/1280px-Original_pencil_manuscript_of_short_story%2C_%22Jacques%22_%28partial_draft%29%2C_by_Kate_Chopin%2C_1900_-_DPLA_-_d8d88bf3f113e12a7584dcbfb1ecbfce_%28page_62%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "downloaded_variant": "commons-thumb-1200",
+      "original_bytes": 420155,
+      "original_sha256": "25d8e50184ccce2282a64206945e042c6c3d14ae9ced1e34ec8eae529827bff0",
+      "licence": "Public domain",
+      "licence_url": "",
+      "attribution": "Chopin, Kate, 1850-1904",
+      "collection": "Kate Chopin manuscript scans (DPLA / Wikimedia Commons)",
+      "real_data": true,
+      "synthetic": false,
+      "stats": {
+        "paper_level": 194.0,
+        "dark_level": 166.0,
+        "ink_delta": 28.0,
+        "stroke_fraction": 0.05689,
+        "stroke_depth_p95": 42.0,
+        "paper_noise_sigma": 5.5,
+        "candidate_index": 34
+      }
+    }
+  ]
+}
