@@ -1,3 +1,81 @@
-1. If an old DEBUG build is installed, remove it first: adb uninstall com.docscanai
-2. Install this release APK: adb install -r DocScanAI-0.3.13.apk
-3. No PC? Copy DocScanAI-0.3.13.apk to the phone and install it via the file manager.
+DocScan AI 0.3.17 - what changed
+
+Two page-detection fixes, both found on 42 brand-new phone photos that were never used
+for tuning, and both verified against the 116-photo set the detector was originally
+measured on.
+
+1. BOTH PAGES OF AN OPEN BOOK ARE NOW ONE SCAN
+   Before: the detector could lock a two-page spread and then a repair rule cut it in half,
+   keeping one leaf. On the new photos that happened to 29 of 42, and 8 of them had a strip
+   fraction of 0.4-0.5 - an even split, i.e. a spread being cut down the middle.
+   Now: a rule may only remove a sliver smaller than a quarter of the page. Both leaves stay.
+   This follows your rule: both pages visible and centred means one scan; a single page only
+   when the other leaf is barely visible.
+
+2. A QUAD WITH A LOST CORNER IS REJECTED
+   Before: a corner pulled deep inside the page (the detection model's peak snapping onto a
+   text block) left a quad that was nearly a triangle, and it passed every shape check.
+   Now: a quad with an interior angle wider than 125 degrees is refused, and the fallback
+   detector takes over. Measured: the four broken quads sat at 127-133 degrees; every good
+   quad on the 116-photo set is at or below 123.
+
+3. THE QUAD-TRIMMING RULE IS SWITCHED OFF
+   There was a rule that trimmed a strip off one side of a detected quad, meant to cut away
+   an absorbed facing page. Measured against the same photos with and without it, it damaged
+   36 of the 38 photos it touched: on the new set it made 20 of 20 touched quads worse. It
+   was locking the edge of the printed text block and throwing away a few centimetres of
+   paper. Example: on one photo the page ends at x=1064, the detector before trimming says
+   x=1148, and the trimming rule cut at x=1000 - 64 px into the paper.
+   It is off. If it ever proves useful the switch is MLSD_REPAIR_ENABLED in the detector.
+
+MEASURED RESULT
+
+  42 new photos (never used for tuning, scored against a segmented page mask):
+       quad locks the page      7 / 42  (17 %)   ->   23 / 42  (55 %)
+       mean overlap (IoU)       0.637            ->   0.756
+       at a looser threshold    24 / 42  (57 %)   (IoU >= 0.80)
+       at a stricter one        18 / 42  (43 %)   (IoU >= 0.90)
+       24 photos improved, 3 got worse, 15 unchanged.
+
+  116 original photos (same scoring oracle as before, so this is a pure detector comparison):
+       quad is the page         44 / 94  (47 %)   ->   54 / 94  (57 %)
+       mean overlap (IoU)       0.481            ->   0.536
+       detections               104              ->   104   (unchanged)
+
+  The 3 photos that got worse are the broken quads described in fix 2: the broken quad is
+  refused, and the fallback detector returns a different, smaller rectangle.
+
+WHAT IS STILL WRONG
+
+  The remaining failures are mostly the detector stopping short of the page edge, or locking
+  a panel printed inside a page (a white sticker sheet lying on a book cover). 11 of 42 new
+  photos still fall short and 5 are partially wrong. That is corner-accuracy work, not page
+  choice, and it is the next thing to fix.
+
+  These results come from an emulator replaying photos through the real detector, not from
+  a physical phone camera.
+
+INSTALL
+
+RELEASE APK  (signed, recommended)
+  1. If a DEBUG build is already installed, remove it first:
+       adb uninstall com.docscanai
+  2. adb install -r DocScanAI-0.3.17.apk
+  3. No PC? Copy DocScanAI-0.3.17.apk to the phone and open it from the file manager.
+
+DEBUG APK  (for bug reports; different signing key)
+  adb install -r DocScanAI-0.3.17-debug.apk
+
+Both are arm64-v8a. Android 8.0+ (API 26). No Play services needed.
+The AI models download in-app on first launch, or are pushed by tooling.
+
+VERIFY
+
+  sha256sum -c SHA256.txt    (or: certutil -hashfile DocScanAI-0.3.17.apk SHA256)
+  DocScanAI-0.3.17.apk         125545234 bytes
+  SHA-256 23950f07c34209e5d00ffb6fd5dfaac6bbe4a362b8ba80494f611e19fd5c0b55
+  DocScanAI-0.3.17-debug.apk   144486553 bytes
+  SHA-256 2ebde797a97186974229e6543622da555e7a9d03d8bdccdfe9ded08971639e23
+  versionCode=20  versionName=0.3.17
+  signing cert SHA-256 7a6977076f2c16e1c521b9301339ec9196aaac6f6a7641d7ec3fc965854253dc
+  (same certificate as 0.3.12 - 0.3.16, so this installs over the previous version)
