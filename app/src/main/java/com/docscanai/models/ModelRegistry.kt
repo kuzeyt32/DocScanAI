@@ -49,7 +49,18 @@ data class ModelSpec(
     val tier: ModelTier,
     val license: String,
     val sourceRepository: String,
-    val files: List<ModelFile> = emptyList()
+    val files: List<ModelFile> = emptyList(),
+    /**
+     * SUBTASK H42 — whether the onboarding/download screen offers this artifact to the user.
+     *
+     * False for artifacts that are **tooling/test-provisioned only**: the legacy DexiNed boundary
+     * graph (the detector stopped consulting it in H4), the image-to-image UVDoc export (only a
+     * compatibility fallback behind the 45x31 grid path), and the not-yet-pinned
+     * Quality/fallback/shadow placeholders. They stay in the registry so presence checks, the
+     * provisioning lane and the instrumented tests keep working, but the UI no longer advertises a
+     * download that either does nothing or can never succeed.
+     */
+    val userFacing: Boolean = true
 ) {
     /** Complete file list; falls back to the legacy single-file fields. */
     fun allFiles(): List<ModelFile> =
@@ -100,7 +111,10 @@ class ModelRegistry {
             sha256 = M1_BOUNDARY_SHA256,
             tier = ModelTier.FAST,
             license = "MIT",
-            sourceRepository = "https://huggingface.co/opencv/edge_detection_dexined"
+            sourceRepository = "https://huggingface.co/opencv/edge_detection_dexined",
+            // H42: kept for presence checks / the provisioning lane and rollback, but NOT offered
+            // in the UI: the corner model superseded it in H4 and the detector never consults it.
+            userFacing = false
         ),
         ModelSpec(
             id = ID_M2_DEWARP,
@@ -116,7 +130,11 @@ class ModelRegistry {
             sha256 = M2_DEWARP_SHA256,
             tier = ModelTier.FAST,
             license = "Apache-2.0",
-            sourceRepository = "https://huggingface.co/PaddlePaddle/UVDoc_onnx"
+            sourceRepository = "https://huggingface.co/PaddlePaddle/UVDoc_onnx",
+            // H42: the 45x31 grid artifact below is the primary dewarp path and is what the UI
+            // offers. This image-to-image export is only its compatibility fallback, so it must not
+            // appear as a second "Page flattening" row the user has to download as well.
+            userFacing = false
         ),
         ModelSpec(
             id = ID_M2_DEWARP_GRID,
@@ -161,7 +179,10 @@ class ModelRegistry {
             sha256 = PLACEHOLDER_SHA256,
             tier = ModelTier.QUALITY,
             license = "MIT",
-            sourceRepository = "https://github.com/cvlab-stonybrook/PaperEdge"
+            sourceRepository = "https://github.com/cvlab-stonybrook/PaperEdge",
+            // H42: URL/SHA are TODO placeholders, so a download can never succeed. Registered for
+            // the future Quality tier, never advertised in the UI.
+            userFacing = false
         ),
         ModelSpec(
             id = ID_M2F_DEWARP_FALLBACK,
@@ -172,7 +193,9 @@ class ModelRegistry {
             sha256 = PLACEHOLDER_SHA256,
             tier = ModelTier.FALLBACK,
             license = "MIT",
-            sourceRepository = "https://github.com/cvlab-stonybrook/DewarpNet"
+            sourceRepository = "https://github.com/cvlab-stonybrook/DewarpNet",
+            // H42: placeholder artifact, tooling-only until pinned.
+            userFacing = false
         ),
         ModelSpec(
             id = ID_M3_SHADOW,
@@ -183,7 +206,9 @@ class ModelRegistry {
             sha256 = PLACEHOLDER_SHA256,
             tier = ModelTier.OPTIONAL,
             license = "See repo (ShadowFormer MIT; verify others)",
-            sourceRepository = "https://github.com/GuoLanqing/ShadowFormer"
+            sourceRepository = "https://github.com/GuoLanqing/ShadowFormer",
+            // H42: placeholder artifact, tooling-only until pinned.
+            userFacing = false
         )
     )
 
@@ -192,19 +217,26 @@ class ModelRegistry {
     fun modelsForTier(tier: ModelTier): List<ModelSpec> = models.filter { it.tier == tier }
 
     /**
-     * Model ids required for the default Fast tier pipeline.
+     * Model ids the default (Fast) pipeline actually needs present - and exactly the set the
+     * onboarding screen offers.
      *
-     * SUBTASK H4: [ID_M1C_DETECT] (the DocAligner corner detector) is now the primary page
-     * detector, so it is a Fast-tier requirement. `m1_boundary` (DexiNed) is retained in the
-     * registry and still provisioned/presence-checked, but is no longer wired into the detection
-     * decision (see MODELS.md §2.1 for the measured justification).
+     * SUBTASK H42: this list used to hold four ids (about 110 MB), which produced the confusing
+     * duplicate rows in the download screen - the DexiNed boundary graph (never consulted since
+     * H4) and the image-to-image UVDoc export (only a compatibility fallback behind the grid
+     * path). The pipeline's real requirements are the corner detector plus the grid dewarp:
      *
-     * SUBTASK H7: [ID_M2_DEWARP_GRID] is the primary dewarp artifact (45x31 grid, applied as a
-     * single remap from the original still). [ID_M2_DEWARP] stays a Fast-tier requirement because
-     * it is the image→image fallback when the grid graph is missing/invalid.
+     *  - [ID_M1C_DETECT]     DocAligner LCNet100 corner heatmap (primary detector, ~5 MB)
+     *  - [ID_M2_DEWARP_GRID] UVDoc 45x31 grid (primary dewarp, ~30 MB, two files)
+     *
+     * Everything else is optional or tooling-provisioned and stays out of the user's way
+     * ([ModelSpec.userFacing] = false), so `isFastTierAvailable()` means "the AI path is ready"
+     * without demanding artifacts that nothing reads.
      */
-    val fastTierIds: List<String> =
-        listOf(ID_M1C_DETECT, ID_M1_BOUNDARY, ID_M2_DEWARP, ID_M2_DEWARP_GRID)
+    val fastTierIds: List<String> = listOf(ID_M1C_DETECT, ID_M2_DEWARP_GRID)
+
+    /** The specs the onboarding screen shows: Fast tier, user-facing only. */
+    val downloadableSpecs: List<ModelSpec> =
+        models.filter { it.tier == ModelTier.FAST && it.userFacing }
 
     /**
      * Image→image dewarp resolution order: primary (UVDoc) -> quality (DRCNet/PaperEdge) -> light

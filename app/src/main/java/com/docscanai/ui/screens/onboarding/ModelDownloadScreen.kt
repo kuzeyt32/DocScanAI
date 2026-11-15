@@ -54,7 +54,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.docscanai.core.di.ServiceLocator
 import com.docscanai.models.ModelState
 import com.docscanai.models.ModelStatus
-import com.docscanai.models.ModelTier
 import com.docscanai.models.ModelSpec
 import com.docscanai.models.ModelRegistry
 import kotlinx.coroutines.launch
@@ -86,13 +85,12 @@ fun ModelDownloadScreen(
     val scope = rememberCoroutineScope()
 
     // Models that unlock the default (Fast) pipeline — the ones the user actually needs.
-    val relevantSpecs = remember(registry) { registry.modelsForTier(ModelTier.FAST) }
-    // Quality / light-fallback / optional models whose URLs are intentionally not pinned yet.
-    val comingSoonSpecs = remember(registry) { registry.models.filter { it.tier != ModelTier.FAST } }
+    // SUBTASK H42: `downloadableSpecs` is Fast-tier AND user-facing, so the legacy DexiNed graph
+    // and the image-to-image UVDoc fallback no longer appear as extra rows.
+    val relevantSpecs = remember(registry) { registry.downloadableSpecs }
 
     // Live download state, exposed by the manager/worker as Compose state.
     val statuses by manager.statuses.collectAsStateWithLifecycle()
-    val qualityTierEnabled by settings.qualityTierEnabled.collectAsStateWithLifecycle(initialValue = false)
     val modelsSkipped by settings.modelsSkipped.collectAsStateWithLifecycle(initialValue = false)
     val online = rememberIsOnline()
 
@@ -260,14 +258,6 @@ fun ModelDownloadScreen(
                 Text("Skip — use built-in processing")
             }
 
-            // Opt-in quality tier (models not published yet).
-            QualityTierSection(
-                specs = comingSoonSpecs,
-                enabled = qualityTierEnabled,
-                onToggle = { value ->
-                    scope.launch { settings.setQualityTierEnabled(value) }
-                }
-            )
         }
     }
 }
@@ -368,59 +358,6 @@ private fun ModelRow(
     }
 }
 
-/** Opt-in Quality tier; its artifacts are intentionally unpinned, so show them as coming soon. */
-@Composable
-private fun QualityTierSection(
-    specs: List<ModelSpec>,
-    enabled: Boolean,
-    onToggle: (Boolean) -> Unit
-) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Quality tier", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "Higher-quality neural dewarp / shadow removal. Not available yet.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Switch(checked = enabled, onCheckedChange = onToggle)
-            }
-            specs.forEach { spec ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "•",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = spec.displayName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = "Not available yet",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
-
 /** Small informational card used for the fallback / offline / skipped callouts. */
 @Composable
 private fun InfoCard(
@@ -451,10 +388,12 @@ private fun InfoCard(
     }
 }
 
-/** Plain-language title + engine subtitle for the two real models. */
+/** Plain-language title + engine subtitle for the models the screen offers. */
 private fun friendlyModelLabels(spec: ModelSpec): Pair<String, String> = when (spec.id) {
-    ModelRegistry.ID_M1_BOUNDARY -> "Page detector" to "Finds the document edges (DexiNed)"
-    ModelRegistry.ID_M2_DEWARP -> "Page flattening" to "Corrects page curvature (UVDoc)"
+    ModelRegistry.ID_M1C_DETECT -> "Page detector" to "Finds the page corners (DocAligner LCNet100)"
+    ModelRegistry.ID_M2_DEWARP_GRID -> "Page flattening" to "Corrects page curvature (UVDoc)"
+    ModelRegistry.ID_M2_DEWARP -> "Page flattening (compatibility)" to "Image-to-image UVDoc"
+    ModelRegistry.ID_M1_BOUNDARY -> "Edge detector (legacy)" to "DexiNed - not used by detection"
     else -> spec.displayName to spec.sourceRepository
 }
 

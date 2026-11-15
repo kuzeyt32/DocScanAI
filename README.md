@@ -10,7 +10,7 @@ offline** — there is no cloud, no account, and no OCR.
 
 - **Package / application ID:** `com.docscanai`
 - **Language / UI:** Kotlin + Jetpack Compose (Material 3)
-- **Version:** `17` / `0.3.14`
+- **Version:** `18` / `0.3.15`
 - **Target device:** Samsung Galaxy S25 FE (arm64-v8a), Android 14/15 — runs on Android 8.0 (API 26)+
 
 > **Documentation map (start here).**
@@ -27,6 +27,7 @@ offline** — there is no cloud, no account, and no OCR.
 > | [`docs/MODEL_STRATEGY.md`](docs/MODEL_STRATEGY.md) | Why this model stack (and the measured reasoning behind it) |
 > | [`docs/HANDWRITING_ENHANCEMENT.md`](docs/HANDWRITING_ENHANCEMENT.md) | Pencil/faint-handwriting legibility research and its measured verdict |
 > | [`docs/evidence/`](docs/evidence/) | **Visual evidence**: the AI corner heat maps + gate INK map per photo, and the quad-vs-ink measurement |
+> | [`docs/runs/`](docs/runs/) | **Run records**: machine output of the measurement lanes (detector verdict over all 116 photos, ship provenance) |
 >
 > Everything below is maintained alongside the code. When a number here disagrees with
 > [`docs/RESULTS.md`](docs/RESULTS.md), trust **RESULTS** and please fix the README.
