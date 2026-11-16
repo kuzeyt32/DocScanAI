@@ -26,23 +26,37 @@ This stick holds three things that are **not** on GitHub:
 
 | file | when to use |
 |---|---|
-| `01-setup-cachyos.txt` | first, on the fresh CachyOS machine. Installs OpenCode, T3 Code, ROCm, restores this handoff, verifies GPU. |
+| `01-setup-cachyos.txt` | first, after the user has installed CachyOS + OpenCode + T3 Code by hand and placed `opencode.json`. Verifies those, then installs the rest, sets up ROCm **and fixes it if broken**, restores this handoff. |
 | `02-rebuild-project.txt` | after setup passes. The rebuild brief: context, decisions already made, hard rules, phases P0–P4. |
 
-Prompt 1 installs OpenCode **before** T3 Code, because T3 Code is a UI that hosts a provider.
+Prompt 1 is **verify-only** for OpenCode and T3 Code — it does not install, configure or repair
+them, and never touches `~/.config/opencode/`. The user's `opencode.json` sits at the root of
+this stick; keep it, it is not read by the prompt.
 
 ---
 
 ## `photos/` — 220 images, 59 MB
 
+**Only the first two are used.** The others are included for completeness but are *not* part of
+evaluation and must not be treated as evidence.
+
 | set | count | what it is | use |
 |---|---|---|---|
-| `holdout42` | 42 | real phone photos, never used for tuning | **evaluation** (has masks) |
-| `owner110` | 116 | real phone photos, the original corpus | **regression** |
-| `bookspread_real` | 16 | real open-book spread photos | **evaluation — the failure case** |
-| `pencil` | 12 | real handwriting photos | evaluation |
-| `live_room` | 16 | real room scenes | evaluation |
-| `bookspread` | 18 | **synthetic** book spreads | reference only — never a test set |
+| `holdout42` | 42 | owner's real phone photos, never used for tuning | **evaluation** (has masks) |
+| `owner110` | 116 | owner's real phone photos, the original corpus | **regression** |
+| `bookspread_real` | 16 | fetched from Wikimedia/Unsplash | **not used** |
+| `parent`/`pencil` | 12 | fetched from Wikimedia | **not used** |
+| `live_room` | 16 | staged room scenes | **not used** |
+| `bookspread` | 18 | **synthetic** | **not used** |
+
+The excluded four were shot in environments arranged specifically for photography, or were
+staged/fetched rather than captured by the owner, so they would flatter or mislead the numbers.
+The owner's decision: use `holdout42` + `owner110` plus a fresh set they will shoot.
+
+> **Note on an earlier claim:** I once listed `bookspread_real` as "exactly the failure case and
+> never scored". That was true that it was never scored — but it is fetched imagery, not the
+> owner's captures, so not scoring it was correct. The real gap was that only two sets are truly
+> representative, and they both have been measured.
 
 **All of these are private.** Do not commit them, do not upload them. They are gitignored in
 the repo:
@@ -59,9 +73,11 @@ JSON manifests sit beside the photos (dimensions, oracle corners). Those *are* t
 
 ### Correction worth noting
 
-The last round of work only evaluated on `holdout42` and `owner110`. **`bookspread_real` — 16
-real spread photos, i.e. exactly the failure mode — was never scored.** That is a real gap and
-prompt 2 requires it to be part of P0.
+The last round of work only evaluated on `holdout42` and `owner110`. That turned out to be the
+right pair: the other four bundled sets are fetched-from-the-internet or staged imagery, not the
+owner's own captures, and are excluded from evaluation by the owner's decision. The genuine gap
+was never the count of sets — it is that `holdout42` has now been tuned against repeatedly, so a
+**fresh set from the owner** is what restores an uncontaminated measurement.
 
 ---
 

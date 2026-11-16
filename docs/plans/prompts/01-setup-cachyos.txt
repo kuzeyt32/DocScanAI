@@ -3,8 +3,15 @@ PROMPT 1 of 2 - MACHINE SETUP (CachyOS)
 
 Paste this into OpenCode / T3 Code on the fresh CachyOS machine, BEFORE the project prompt.
 
-You are setting up a fresh CachyOS workstation for an Android + PyTorch project, and
-restoring a handoff from a USB drive.
+IMPORTANT - WHAT THIS PROMPT DOES NOT DO
+The user installs OpenCode and T3 Code BY HAND before running this: they will have CachyOS
+up, OpenCode and T3 Code installed, and their opencode.json in place, and T3 Code running
+with you. This prompt does NOT install, configure or repair those, and does NOT touch
+~/.config/opencode/. It verifies they work, then sets up everything else (system packages,
+ROCm, Python, the USB handoff restore) and fixes GPU problems.
+
+Steps 2 and 9 are verification-only. If OpenCode or your provider config is broken, say so
+and stop - the user fixes that, not you.
 
 Work step by step. After EVERY step, show the actual command output that proves it worked.
 If a step fails, report the exact error and continue with the next independent step - never
@@ -13,8 +20,8 @@ claim success you did not observe.
 CRITICAL: CachyOS is Arch-based. It uses pacman/paru, NOT apt. Do not run apt, apt-get,
 dpkg, or any Debian/Ubuntu command. If you catch yourself typing apt, stop.
 
-Idempotent: before installing anything, check whether it already exists. Do not reinstall
-or overwrite user config. Do not reboot. Do not delete anything.
+Idempotent: before installing anything, check whether it already exists. Do not reinstall or
+overwrite user config. Do not reboot. Do not delete anything.
 
 === STEP 0 - find and inspect the USB handoff ===
 A 32GB USB stick contains a folder named DocScanAI-handoff. Find its mount point:
@@ -27,19 +34,21 @@ Report the resolved path and the output of:
   ls -R "$USB" | head -60
   du -sh "$USB"/*
 Expected contents (verify each exists, report count + size):
-  PROMPTS/             the two prompts (this one and the project one)
-  photos/holdout42/    42 jpg + 2 json manifests
-  photos/owner110/     116 jpg + 2 json manifests
-  photos/bookspread_real/  16 jpg + manifest
-  photos/bookspread/   18 jpg + manifest
-  photos/pencil/       12 jpg + manifest
-  photos/live_room/    16 jpg
+  PROMPTS/                 the two prompts
+  photos/holdout42/        42 jpg + 2 json manifests
+  photos/owner110/         116 jpg + 2 json manifests
   measurements/h48-masks/  42 .npy page masks
   measurements/scores/     the measurement JSON files
   measurements/traces/     h64fast (42) and h64owner (116) detector traces
-  docs/                all the run reports and plans
+  docs/                    all the run reports and plans
   repo/DocScanAI.bundle    a git bundle with full history
-If a count does not match, say so explicitly. Then READ these three files before continuing:
+If a count does not match, say so explicitly.
+
+Also note: at the ROOT of the stick (next to DocScanAI-handoff/) there is an opencode.json
+containing the user's provider configuration and API keys. Do NOT copy it anywhere yet, do NOT
+print its contents, and do NOT commit it. Step 7 tells the user how to place it.
+
+Then READ these three files before continuing:
   "$USB"/README.md
   "$USB"/docs/plans/rebuild-plan.md
   "$USB"/docs/runs/quad-ceiling-and-extension.md
@@ -54,66 +63,134 @@ Run and report:
 Report: distro, kernel, GPU model and PCI id, user, free space.
 Note which already exist: git curl wget node npm python3 pip docker adb java paru yay
 
-=== STEP 2 - system update ===
+=== STEP 2 - verify the tools the user installed by hand ===
+Do NOT install these. Only verify, and if missing, STOP and report what is missing:
+  command -v opencode && opencode --version
+  command -v t3code || ls /usr/bin | grep -i t3
+  ls -l ~/.config/opencode/opencode.json
+  ls ~/.config/opencode/ 2>/dev/null
+Report each result.
+If opencode works, also verify the configured provider actually answers:
+  opencode models 2>&1 | head -20
+  (or the equivalent listing command for the installed version)
+If the provider list is empty or the command errors, report it and ask the user to sort out
+auth/config before continuing - do not guess at their config.
+
+=== STEP 3 - system update ===
   sudo pacman -Syu --noconfirm
 Report before/after package counts. If a kernel update happens, say so (do NOT reboot).
 
-=== STEP 3 - base packages ===
+=== STEP 4 - base packages (no editor/agent packages here) ===
   sudo pacman -S --needed --noconfirm base-devel git curl wget unzip zip jq \
       htop tree rsync python python-pip nodejs npm jdk21-openjdk \
       android-tools ntfs-3g exfatprogs fuse2 cmake clang pkgconf vulkan-tools
 Report newly installed vs already present.
 Verify: git --version, node --version, npm --version, java -version, adb --version,
 python3 --version
+Note: nodejs/npm are installed anyway because the Android toolchain and other JS tooling may
+need them; this does not touch OpenCode or T3 Code.
 
-=== STEP 4 - AUR helper (CachyOS ships paru; AUR may be disabled) ===
-  command -v paru; command -v yay
-If neither exists: sudo pacman -S --needed --noconfirm paru
-Then TEST AUR access actually works:
-  paru -Si t3code-bin
-If AUR is disabled, find and report the setting, and ask the user before changing it.
-Do not silently edit pacman.conf.
-
-=== STEP 5 - OpenCode (install FIRST - T3 Code hosts it) ===
-  sudo pacman -S --needed --noconfirm opencode
-If that package does not exist in the repos:
-  curl -fsSL https://opencode.ai/v2/install | bash
-Fallbacks in order: paru -S opencode-beta  |  npm install -g @opencode/cli
-Verify: opencode --version   (must print a version)
-
-=== STEP 6 - T3 Code ===
-  paru -S --needed --noconfirm t3code-bin
-Verify:
-  command -v t3code || ls /usr/bin | grep -i t3
-  ls /usr/share/applications | grep -i t3
-Report how the user launches it (command name and/or menu entry).
-
-=== STEP 7 - GPU access for compute ===
+=== STEP 5 - GPU access for compute ===
   ls -l /dev/kfd /dev/dri/renderD* 2>&1
   groups
   sudo usermod -aG video "$USER"
   sudo usermod -aG render "$USER"
 Report that the group change needs a re-login (do NOT reboot).
 
-=== STEP 8 - ROCm (the user has run ROCm on this card before) ===
-ROUTE A - native packages:
-  sudo pacman -S --needed --noconfirm rocm-hip-sdk rocm-opencl-runtime
-  /opt/rocm/bin/rocminfo | head -40
+=== STEP 6 - ROCm on the 9070 XT (gfx1201) - install, then FIX IT IF BROKEN ===
+
+The user has run ROCm on this exact card before, so it should work. But this is a fresh
+install on a new distro, and the user has explicitly asked you to FIX GPU problems rather
+than just report them. Work down the ladder until `rocminfo` sees gfx1201 and PyTorch
+reports the GPU. Diagnose before changing anything, and say what you changed and why.
+
+6a - INSTALL (native first)
+  sudo pacman -S --needed --noconfirm rocm-hip-sdk rocm-opencl-runtime rocminfo
   /opt/rocm/bin/hipconfig --version
-Check the ISA list contains gfx1201 (RX 9070 XT / RDNA4). If it does not, go to Route B.
 
-ROUTE B - Docker with AMD's official PyTorch image:
-  sudo pacman -S --needed --noconfirm docker docker-compose
-  sudo systemctl enable --now docker
-  sudo usermod -aG docker "$USER"
-  sudo docker pull rocm/pytorch:rocm7.14_ubuntu24.04_py3.11_pytorch_release_2.10.0
-  sudo docker run --rm --device=/dev/kfd --device=/dev/dri \
-      -e PYTORCH_TUNABLEOP_ENABLED=1 \
-      rocm/pytorch:rocm7.14_ubuntu24.04_py3.11_pytorch_release_2.10.0 \
-      python -c "import torch; print(torch.__version__); print('cuda available:', torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'NO GPU')"
-Report which route worked. "cuda available: True" is the only acceptable proof.
+6b - CHECKS, in this order. Record the actual output of each:
+  1. Device nodes exist and permissions:
+       ls -l /dev/kfd /dev/dri/renderD* /dev/dri/card*
+       id                                  # needs groups video + render
+     If the user is not in video/render, they must re-login. Report it; do not reboot.
+  2. Kernel driver is loaded for the card:
+       lspci -nnk | grep -A3 -Ei 'vga|display'
+       dmesg | grep -iE 'amdgpu|gfx' | tail -30
+     Look for amdgpu binding to the 9070 XT and any firmware/VM errors.
+  3. ROCm sees the GPU at all:
+       /opt/rocm/bin/rocminfo | head -60
+     SUCCESS = an Agent block whose "gfx" target reads gfx1201 (or gfx12xx).
+  4. PyTorch sees it (use the ROCm build, not the CPU/default one):
+       python -c "import torch; print(torch.__version__, torch.version.hip); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
+     If torch.version.hip prints None, the wheel is the CPU or CUDA build - reinstall from
+       https://download.pytorch.org/whl/rocm<ver>   (match the installed ROCm major version)
 
-=== STEP 9 - Python ML environment ===
+6c - TROUBLESHOOTING LADDER. Apply one step at a time, re-testing after each, and stop at
+the first that works. Report each attempt and its result, including the ones that failed.
+
+  FIX 1 - groups/permissions (most common on a fresh install)
+    The user was added to video/render in Step 5 but has not re-logged in. If /dev/kfd is
+    root:render only, that alone explains "no GPU". Verify with `id` and report; the fix is a
+    re-login, which the user does, not you.
+
+  FIX 2 - ROCm version vs card support
+    gfx1201 (RDNA4) needs a recent ROCm (7.x). If rocminfo lists older targets only, check:
+      pacman -Q | grep -i rocm
+      /opt/rocm/bin/rocminfo | grep -E 'Name|gfx|Marketing'
+    If the card is absent entirely, the installed ROCm is too old for RDNA4. Report the exact
+    version and move to FIX 5 (Docker), which pins a known-good combination.
+
+  FIX 3 - HSA override (only if the card is detected but agents are empty/unsupported)
+    gfx1201 maps to HSA version 12.0.1. Try:
+      HSA_OVERRIDE_GFX_VERSION=12.0.1 /opt/rocm/bin/rocminfo | head -40
+    and the same env var in front of the PyTorch test. This is a mitigation, not a fix -
+    say clearly that it worked around the problem and what it masked.
+
+  FIX 4 - Secure Boot / IOMMU
+    If /dev/kfd is missing entirely and dmesg shows nothing for amdgpu:
+      sudo dmesg | grep -iE 'kfd|iommu|secure boot' | tail -20
+      mokutil --sb-state 2>/dev/null
+    Secure Boot blocking the module and restrictive IOMMU groups are both real causes. Report
+    what you find and propose the specific change (do NOT edit bootloader config or disable
+    Secure Boot without the user's explicit approval).
+
+  FIX 5 - Docker with AMD's official image (the reliable fallback)
+      sudo pacman -S --needed --noconfirm docker docker-compose
+      sudo systemctl enable --now docker
+      sudo usermod -aG docker "$USER"
+      sudo docker pull rocm/pytorch:rocm7.14_ubuntu24.04_py3.11_pytorch_release_2.10.0
+      sudo docker run --rm --device=/dev/kfd --device=/dev/dri \
+          --group-add video --group-add render \
+          -e PYTORCH_TUNABLEOP_ENABLED=1 \
+          rocm/pytorch:rocm7.14_ubuntu24.04_py3.11_pytorch_release_2.10.0 \
+          python -c "import torch; print(torch.__version__); print('cuda available:', torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'NO GPU')"
+    This route is container-isolated, so it sidesteps host ROCm version mismatches entirely.
+    If it works, RUN ALL TRAINING IN THIS CONTAINER and record the exact command in the report.
+
+  FIX 6 - verify it is real, not just "available"
+    Whatever route worked, prove the GPU actually computes:
+      python - <<'EOF'
+      import torch, time
+      a = torch.randn(4096, 4096, device='cuda')
+      torch.cuda.synchronize(); t0 = time.time()
+      for _ in range(20): b = a @ a
+      torch.cuda.synchronize(); dt = time.time() - t0
+      print('device:', torch.cuda.get_device_name(0))
+      print('GFLOP/s:', 20 * 2 * 4096**3 / dt / 1e9)
+      EOF
+    A real RDNA4 result is in the thousands of GFLOP/s. A tiny number or an error means the
+    "available: True" was not real. Report the measured GFLOP/s.
+
+6d - IF NOTHING WORKS
+  Do not fake it and do not proceed silently. Report: which fixes were tried, the exact
+  errors, `rocminfo` output, dmesg lines, and your best hypothesis. The project can still start
+  at P0 (which needs no GPU - it is photo replay and measurement), so say that the CPU-only
+  path is usable and what it costs (no training, only evaluation).
+
+Report which route finally worked, with the GFLOP/s number.
+"cuda available: True" is the only acceptable proof.
+
+=== STEP 7 - Python ML environment ===
   python3 -m venv ~/mlenv
   source ~/mlenv/bin/activate
   pip install --upgrade pip
@@ -121,10 +198,10 @@ Report which route worked. "cuda available: True" is the only acceptable proof.
 Verify:
   python -c "import onnxruntime as o; print(o.__version__, o.get_available_providers())"
   python -c "import cv2; print(cv2.__version__)"
-Report the ONNX Runtime providers list - the real deployment target is ONNX on Android,
-so also confirm a model can be loaded and run on CPU here.
+Report the ONNX Runtime providers list. The real deployment target is ONNX on Android, so also
+confirm a model can be loaded and run on the CPU provider here.
 
-=== STEP 10 - restore the project from the USB ===
+=== STEP 8 - restore the project from the USB ===
 Clone from the bundle (full history, works offline):
   mkdir -p ~/proj && cd ~/proj
   git clone "$USB"/repo/DocScanAI.bundle DocScanAI
@@ -132,20 +209,22 @@ Clone from the bundle (full history, works offline):
   git log --oneline -5
   git remote add origin https://github.com/kuzeyt32/DocScanAI.git  # optional, for pushing
   git fetch origin 2>/dev/null && git status -sb | head -2
-Then restore the photos (they are gitignored, so the clone does NOT have them):
-  for s in holdout42 owner110 bookspread_real bookspread pencil live_room; do
+Then restore the photos (they are gitignored, so the clone does NOT contain them):
+  for s in holdout42 owner110; do
     mkdir -p "app/src/androidTest/assets/$s"
     cp -a "$USB"/photos/"$s"/. "app/src/androidTest/assets/$s"/
   done
-  for s in holdout42 owner110 bookspread_real bookspread pencil live_room; do
+  for s in holdout42 owner110; do
     printf '%-16s %s jpg\n' "$s" "$(ls app/src/androidTest/assets/$s/*.jpg 2>/dev/null | wc -l)"
   done
-  # must print: holdout42 42, owner110 116, bookspread_real 16, bookspread 18, pencil 12, live_room 16
+  # must print: holdout42 42, owner110 116
+  # NOTE: only these two sets are used. The others on the stick (bookspread, bookspread_real,
+  # pencil, live_room) are OPTIONAL - they were staged or fetched imagery rather than the
+  # user's own captures, so they are NOT part of the evaluation. Copy them only if asked.
 Restore the measurements (so nothing has to be recomputed):
-  mkdir -p tooling/out/h48/masks tooling/out/h50
-  cp "$USB"/measurements/h48-masks/*.npy   tooling/out/h48/masks/
-  cp "$USB"/measurements/scores/*.json     tooling/out/h50/ 2>/dev/null
-  mkdir -p tooling/out/h39
+  mkdir -p tooling/out/h48/masks tooling/out/h50 tooling/out/h39
+  cp "$USB"/measurements/h48-masks/*.npy tooling/out/h48/masks/
+  cp "$USB"/measurements/scores/*.json   tooling/out/h50/ 2>/dev/null
   cp -a "$USB"/measurements/traces/h64fast  tooling/out/h39/ 2>/dev/null
   cp -a "$USB"/measurements/traces/h64owner tooling/out/h39/ 2>/dev/null
 Verify counts again and report.
@@ -153,11 +232,22 @@ Then check the build toolchain works:
   ./gradlew --version
   ls app/src/main/java/com/docscanai/capture/OpenCvQuadPageDetector.kt
 
-=== STEP 11 - final report ===
+=== STEP 9 - the user's opencode.json (they do this, or approve it) ===
+Tell the user, do not do it silently:
+  "Your provider config is at the root of the USB stick as opencode.json. To use it here:
+     mkdir -p ~/.config/opencode
+     cp /path/to/stick/opencode.json ~/.config/opencode/opencode.json
+     chmod 600 ~/.config/opencode/opencode.json
+   Then restart OpenCode. Note the file contains live API keys in plain text - it should not
+   stay on a shared USB stick afterwards."
+Do not run those commands yourself unless the user says so. Do not print the file's contents.
+
+=== STEP 10 - final report ===
 Write ~/SETUP_REPORT.md with a table: component | version | how verified | PASS/FAIL
-covering: OS, kernel, GPU + /dev/kfd, ROCm route, torch GPU test, onnxruntime, opencode,
-t3code, node, java, adb, python venv, USB handoff counts, repo clone + photo restore.
-End with a "what still needs the user" list (re-login for groups, anything failed).
+covering: OS, kernel, GPU + /dev/kfd, ROCm route, torch GPU test, onnxruntime, opencode +
+provider, t3code, node, java, adb, python venv, USB handoff counts, repo clone + photo restore.
+End with a "what still needs the user" list (re-login for groups, opencode.json placement,
+anything that failed).
 
 Do not install Android Studio. Do not train anything. Do not modify detector code.
 Stop after the report and wait for the project prompt.

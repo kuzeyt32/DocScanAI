@@ -7,7 +7,7 @@ You are taking over a working Android document-scanner project (DocScanAI) at th
 we have decided the detection pipeline must be rebuilt. Do NOT start by coding. Read first,
 verify the environment, then follow the phases.
 
-FIRST, read these (they are in the repo and also on the USB handoff):
+FIRST, read these (in the repo, also on the USB handoff):
   docs/plans/rebuild-plan.md
   docs/runs/0.3.17-detector-fixes.md
   docs/runs/0.3.17-repair-disabled.md
@@ -37,17 +37,21 @@ What we have already measured - do NOT re-derive these:
 - The SAM-based measuring mask over-covers (it includes the page fanned out BEHIND the front
   one) on ~5 of 16 short cases. It is a pre-annotation tool, NOT ground truth.
 
-## Photo sets available (use ALL of them, not a subset)
+## Photo sets: use ONLY these two
 
-  holdout42        42 real, never tuned on, has SAM masks + full measurements
-  owner110        116 real, the regression set, has an oracle manifest
-  bookspread_real  16 real open-book spread photos  <-- directly the failure case
-  pencil           12 real handwriting photos
-  live_room        16 real room-scene photos
-  bookspread       18 SYNTHETIC book spreads (reference only - never a test set)
+  holdout42    42 real phone photos, taken by the owner, never tuned on. Has SAM masks and a
+               full measurement history.
+  owner110    116 real phone photos, taken by the owner. The regression set. Has an oracle
+               manifest.
 
-The previous round of work evaluated on holdout42 and owner110 only. bookspread_real is real
-spread photography and must be part of evaluation. Do not treat any synthetic set as a test.
+Do NOT use any other bundled set. The repo also contains `bookspread`, `bookspread_real`,
+`pencil` and `live_room`; those are staged/synthetic or fetched-from-the-internet imagery
+(Wikimedia, Unsplash) and, per the owner, were shot in environments set up specifically for
+photography. They are not representative of real capture and must not be used for evaluation
+or for tuning. If you think one would help, ask first, and say why.
+
+So: every number you report must come from `holdout42` and/or `owner110`, or from the owner's
+new photos. Nothing else counts as evidence.
 
 ## Decision already made
 
@@ -64,20 +68,21 @@ then fit a quad or mesh.
   WARP     homography for flat pages, mesh for curved
 
 Rationale from industry primary sources: Scanner Pro runs a small keypoint net on every frame
-and a heavier segmentation model at capture; Genius Scan used MobileNetV2 at 96x96 then
-refined the quad classically (51% -> 75% -> 85%); Adobe uses a 64x64 cascade at 557 fps and
-labels "two pages" explicitly. Genius Scan at 85% still lists "better manage the detection of
-book pages" as FUTURE work - this is genuinely the hard case.
+and a heavier segmentation model at capture; Genius Scan used MobileNetV2 at 96x96 then refined
+the quad classically (51% -> 75% -> 85%); Adobe uses a 64x64 cascade at 557 fps and labels
+"two pages" explicitly. Genius Scan at 85% still lists "better manage the detection of book
+pages" as FUTURE work - this is genuinely the hard case.
 
 Model to train: small 3-class instance segmenter (page / gutter / hand), MobileNetV3 backbone,
 ~5M params, exported to ONNX. Not a foundation model.
 
 ## Hard rules
 
-1. NEVER tune on a sealed evaluation split. Split the user's photos ~60/40 train/eval by SET,
-   and keep a sealed half that is opened exactly once at the end. Never inspect it earlier.
-2. bookspread_real and holdout42 are evaluation material. Do not tune on them.
-3. A change ships only if it improves on BOTH an unseen set and the regression set.
+1. NEVER tune on a sealed evaluation split. The owner is supplying new photos; split those
+   ~60/40 train/eval and keep the eval half sealed until the end. Never inspect it earlier.
+2. `holdout42` has been tuned against repeatedly and is no longer clean. Treat it as a
+   regression set, not as evidence of generalisation. Say so whenever you quote it.
+3. A change ships only if it improves on BOTH a held-out set and the regression sets.
 4. Photos are private: never commit or upload them. Manifests only. They are gitignored.
 5. Every claimed number must come from a script in the repo. No script, no number.
 6. Report regressions explicitly, photo by photo. No means hiding failures.
@@ -85,28 +90,29 @@ Model to train: small 3-class instance segmenter (page / gutter / hand), MobileN
 ## Phases
 
 P0 instrument (before any model work)
-  - Rotation harness: replay the existing holdout42 photos at 0/90/180/270 degrees through
-    the UNCHANGED detector. Quantify the rotation dependence the user reported.
+  - Rotation harness: replay the existing holdout42 photos at 0/90/180/270 degrees through the
+    UNCHANGED detector. Quantify the rotation dependence the owner reported (they had to shoot
+    a spread horizontally, or the detector found only one page).
   - Build INSTANCE-level ground truth (each leaf its own instance), replacing the over-covering
     SAM mask as the referee. SAM may propose; a human decides.
-  - Evaluate bookspread_real with the same harness - it was never scored before.
   - Gate: rotation effect quantified; phantom failures removed from the baseline; a clean
-    before-number on all real sets.
+    before-number on holdout42 + owner110 under the new referee.
 
 P1 synthetic factory - only for classes real photos cannot cover
   - Inputs: clean page images composited into single page / two-page spread with gutter and
     cylinder curvature / panels lying on a page / frame-cut pages / random 90-degree rotations.
-  - Use REAL background plates and REAL shading maps photographed by the user, plus the
-    measured noise, blur and JPEG quality of the user's camera.
+  - Use REAL background plates and REAL shading maps photographed by the owner, plus the
+    measured noise, blur and JPEG quality of the owner's camera.
   - Synthetic supplies LABELS (topology, rotation, truncation), never APPEARANCE.
   - Deliberately soften composite edges (real page boundaries are 2-4 px soft).
   - Track a real-vs-synthetic classifier accuracy and a synthetic-only -> real transfer test.
     If transfer collapses, drop synthetic and say so.
-  - Gate: visual audit - synthetic must be hard to mistake for the user's real photos.
+  - Gate: visual audit - synthetic must be hard to mistake for the owner's real photos.
 
 P2 train the segmenter
-  - REAL-ONLY BASELINE FIRST (~100 train photos). Then add synthetic only for starved classes
-    (rotated spreads, frame-cut pages, two-leaf topology - where real examples number < 20).
+  - REAL-ONLY BASELINE FIRST (the owner's new photos). Then add synthetic only for starved
+    classes (rotated spreads, frame-cut pages, two-leaf topology - where real examples number
+    fewer than ~20).
   - Heavy augmentation including random 90-degree rotation (Adobe does this because phone
     orientation metadata is unreliable).
   - Gate: on held-out real photos, instance IoU >= 0.90 median; 1-vs-2 leaf decision >= 95%.
@@ -128,8 +134,8 @@ Linux (CachyOS, Arch-based), AMD RX 9070 XT (gfx1201, 16GB), Ryzen 7 7800X3D.
 - Verify torch.cuda.is_available() == True and that a real training step runs
 - Verify torch.onnx.export of the intended architecture, and that the exported model loads in
   onnxruntime with the CPU provider (the actual Android deployment target)
-- Report MEASURED throughput (images/sec), then estimate training time from it. Do not quote
-  a time estimate that is not derived from a measured number.
+- Report MEASURED throughput (images/sec), then estimate training time from it. Do not quote a
+  time estimate that is not derived from a measured number.
 
 ## Your first response
 
