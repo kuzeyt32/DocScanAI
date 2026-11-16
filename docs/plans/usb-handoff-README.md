@@ -33,9 +33,11 @@ Prompt 1 is **verify-only** for OpenCode and T3 Code — it does not install, co
 them, and never touches `~/.config/opencode/`. The user's `opencode.json` sits at the root of
 this stick; keep it, it is not read by the prompt.
 
-**Step 2B** repairs a broken GRUB boot menu. Read its first paragraph: an agent running *inside*
-CachyOS can fix a degraded menu (no menu, missing Windows entry, wrong order) but cannot fix a
-machine that will not boot at all — that case is handed to the user as a live-USB chroot recipe.
+**Step 2B** does not repair the old boot loader — the CachyOS install replaces it, so that would
+be wasted work. It instead verifies the NEW one (EFI entry exists and is first, menu generated)
+and fixes only what the installer cannot: a CachyOS entry that is not first in the firmware
+order, a missing Windows entry (os-prober is off by default on Arch), and dead entries left over
+from the old install.
 
 ---
 
