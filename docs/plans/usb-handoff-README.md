@@ -26,12 +26,16 @@ This stick holds three things that are **not** on GitHub:
 
 | file | when to use |
 |---|---|
-| `01-setup-cachyos.txt` | first, after the user has installed CachyOS + OpenCode + T3 Code by hand and placed `opencode.json`. Verifies those, then installs the rest, sets up ROCm **and fixes it if broken**, restores this handoff. |
+| `01-setup-cachyos.txt` | first, after the user has installed CachyOS + OpenCode + T3 Code by hand and placed `opencode.json`. Verifies those, then installs the rest, sets up ROCm **and fixes it if broken**, **repairs a broken GRUB boot menu (Step 2B)**, restores this handoff. |
 | `02-rebuild-project.txt` | after setup passes. The rebuild brief: context, decisions already made, hard rules, phases P0–P4. |
 
 Prompt 1 is **verify-only** for OpenCode and T3 Code — it does not install, configure or repair
 them, and never touches `~/.config/opencode/`. The user's `opencode.json` sits at the root of
 this stick; keep it, it is not read by the prompt.
+
+**Step 2B** repairs a broken GRUB boot menu. Read its first paragraph: an agent running *inside*
+CachyOS can fix a degraded menu (no menu, missing Windows entry, wrong order) but cannot fix a
+machine that will not boot at all — that case is handed to the user as a live-USB chroot recipe.
 
 ---
 

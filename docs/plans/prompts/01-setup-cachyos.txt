@@ -8,7 +8,8 @@ The user installs OpenCode and T3 Code BY HAND before running this: they will ha
 up, OpenCode and T3 Code installed, and their opencode.json in place, and T3 Code running
 with you. This prompt does NOT install, configure or repair those, and does NOT touch
 ~/.config/opencode/. It verifies they work, then sets up everything else (system packages,
-ROCm, Python, the USB handoff restore) and fixes GPU problems.
+ROCm, Python, the USB handoff restore), fixes GPU problems, and repairs a broken GRUB boot
+menu where that is possible from inside a running system (Step 2B).
 
 Steps 2 and 9 are verification-only. If OpenCode or your provider config is broken, say so
 and stop - the user fixes that, not you.
@@ -75,6 +76,129 @@ If opencode works, also verify the configured provider actually answers:
   (or the equivalent listing command for the installed version)
 If the provider list is empty or the command errors, report it and ask the user to sort out
 auth/config before continuing - do not guess at their config.
+
+=== STEP 2B - BOOT HEALTH / GRUB REPAIR (the user reported a broken GRUB) ===
+
+The user says GRUB - the boot menu that lets them choose which OS to start - is broken and they
+do not know why. They want it fixed, not just reported.
+
+READ THIS FIRST - the hard limit of what you can do:
+You are running INSIDE the booted CachyOS. If the machine boots far enough for you to run, then
+GRUB is not completely dead - it is degraded. Three degraded cases are repairable from here:
+  - no menu is shown, it boots straight in (timeout 0 / hidden menu)
+  - the menu shows but an OS is missing (usually Windows, via os-prober)
+  - the wrong entry is default, or the firmware boot order is wrong
+If the machine cannot boot at all (grub rescue> prompt, "unknown filesystem", "no such device",
+or the firmware falls straight to the BIOS), NO agent can fix that from inside, because nothing
+is running. In that case skip to "CASE D" and give the user the exact commands to run from the
+CachyOS live USB. Say plainly that you cannot do it for them.
+
+Safety rules for this step - these are boot-critical:
+  - NEVER run grub-install or efibootmgr without first identifying the correct disk and ESP.
+  - Confirm the ESP path before touching it: findmnt /boot/efi ; findmnt /efi ; findmnt /boot
+  - Back up before editing:
+        sudo cp -a /etc/default/grub /etc/default/grub.bak.$(date +%s)
+        sudo cp -a /boot/grub/grub.cfg /boot/grub/grub.cfg.bak.$(date +%s) 2>/dev/null
+  - Change ONE thing, then re-check, then change the next. Do not apply several fixes blind.
+  - Do NOT disable Secure Boot, do NOT wipe EFI entries, do NOT reformat any ESP. If a fix
+    would need that, stop and ask the user.
+  - If Windows is still installed and the user wants to keep booting it, note that a Linux
+    install CAN leave Windows unbootable if its EFI entry is overwritten. Warn before any
+    grub-install.
+
+2B.1 - DIAGNOSE. Run all of these and report each output:
+  sudo efibootmgr -v                      # what the firmware will boot, and in what order
+  sudo bootctl status 2>/dev/null         # if systemd-boot is in play instead of GRUB
+  findmnt /boot /boot/efi /efi            # where the ESP actually is
+  ls /boot                                # kernel/initramfs images present?
+  cat /etc/default/grub                   # the real config that generates the menu
+  grep -E '^GRUB_(TIMEOUT|TIMEOUT_STYLE|DEFAULT|DISABLE_OS_PROBER|THEME|CMDLINE_LINUX_DEFAULT)' /etc/default/grub
+  sudo grub-mkconfig -o /tmp/grub-test.cfg 2>&1 | tail -30
+      # This is a DRY RUN into /tmp - it does not touch the real menu. Warnings here
+      # ("failed to get canonical path", "os-prober will not be executed") are the diagnosis.
+  sudo grep -c '^menuentry' /tmp/grub-test.cfg ; sudo grep '^menuentry' /tmp/grub-test.cfg | head
+  ls /sys/firmware/efi >/dev/null 2>&1 && echo "EFI boot" || echo "LEGACY/BIOS boot"
+Then classify the fault into ONE of these and say which:
+
+  CASE A - boots straight through, no menu ever appears
+    Cause: GRUB_TIMEOUT=0, or GRUB_TIMEOUT_STYLE=hidden, or the menu is drawn off-screen.
+    Fix:
+        sudo sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=5/' /etc/default/grub
+        sudo sed -i 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
+        # if TIMEOUT_STYLE is absent, add it:
+        grep -q '^GRUB_TIMEOUT_STYLE' /etc/default/grub || echo 'GRUB_TIMEOUT_STYLE=menu' | sudo tee -a /etc/default/grub
+        sudo grub-mkconfig -o /boot/grub/grub.cfg
+    Then verify: grep 'set timeout' /boot/grub/grub.cfg   (must be non-zero)
+
+  CASE B - menu appears but Windows (or another OS) is missing
+    Cause: os-prober is not installed or is disabled - it is DISABLED by default on Arch for
+    security reasons, which is exactly why a dual-boot menu loses Windows.
+    Fix:
+        sudo pacman -S --needed --noconfirm os-prober
+        grep -q '^GRUB_DISABLE_OS_PROBER' /etc/default/grub \
+          && sudo sed -i 's/^GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub \
+          || echo 'GRUB_DISABLE_OS_PROBER=false' | sudo tee -a /etc/default/grub
+        sudo os-prober                     # must now print the Windows partition + label
+        sudo grub-mkconfig -o /boot/grub/grub.cfg
+    If `sudo os-prober` prints nothing, Windows' EFI files are gone or its partition is not
+    mounted-readable (BitLocker!). Report that - it is a different problem, and running
+    grub-mkconfig again will not create an entry that does not exist.
+
+  CASE C - menu shows but entries fail to boot: "no such device", "unknown filesystem",
+           or it drops to a `grub rescue>` prompt
+    Cause: grub.cfg and the installed GRUB core disagree (kernel moved, ESP re-mounted at a
+    different path, or a partial upgrade). This needs a reinstall of the GRUB core.
+    ONLY do this from the live USB chroot (CASE D workflow) unless the user asks you to do it
+    from here, because a wrong grub-install makes the machine unbootable. If you do run it,
+    first print and confirm with the user:
+        findmnt /boot/efi -o SOURCE,TARGET,FSTYPE     # e.g. /dev/nvme0n1p1 /boot/efi vfat
+        lsblk -f                                        # confirm the distro disk
+    then:
+        sudo grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=CachyOS --recheck
+        sudo grub-mkconfig -o /boot/grub/grub.cfg
+    Never guess the disk name. If /boot/efi is not mounted, mount it first and re-check.
+
+  CASE D - cannot boot at all / you are not running on the machine
+    Tell the user to boot the CachyOS live USB, open a terminal, and run this chroot recipe.
+    Do NOT run it yourself; hand it over verbatim with the placeholder explained:
+        lsblk -f                                  # find the root partition and the ESP
+        sudo mount /dev/<ROOT_PART> /mnt
+        sudo mount /dev/<ESP_PART>  /mnt/boot/efi  # usually the FAT32 ~300MB partition
+        for d in dev proc sys run; do sudo mount --bind /$d /mnt/$d; done
+        sudo arch-chroot /mnt
+        # inside the chroot:
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=CachyOS --recheck
+        grub-mkconfig -o /boot/grub/grub.cfg
+        efibootmgr -v                             # check CachyOS entry exists and is first
+        exit
+        for d in run sys proc dev; do sudo umount -R /mnt/$d 2>/dev/null; done
+        sudo umount -R /mnt
+        reboot
+    Add: if the firmware still ignores GRUB, use the firmware boot menu (usually F8/F11/F12 at
+    power-on) to pick the CachyOS entry once, then fix the order with
+        sudo efibootmgr -o 0000,0001              # put the right entry first
+    (Read the real numbers from `efibootmgr -v`; do not copy 0000 blindly.)
+
+  CASE E - firmware boot order points at the wrong loader
+    Fix, only after reading `efibootmgr -v` and confirming which entry is GRUB:
+        sudo efibootmgr -o <grub-entry>,<others...>
+    Report the before and after listing.
+
+2B.2 - ALSO NOTE FOR THE INSTALL ITSELF
+  If the user has not yet installed CachyOS on this disk, the installer (Calamares) creates and
+  installs GRUB, so a fresh install usually repairs a broken boot menu by itself - and can just
+  as easily drop a Windows entry if os-prober is off during install. Warn the user BEFORE the
+  install, not after: tick "install bootloader", and if they want Windows in the menu, enable
+  os-prober at install time.
+  If the user already installed and GRUB is merely misconfigured, step 2B above is the fix.
+
+2B.3 - VERIFY
+  Do not claim it is fixed because the commands exited 0. Prove it:
+    sudo grep 'set timeout' /boot/grub/grub.cfg
+    sudo grep -c '^menuentry' /boot/grub/grub.cfg
+    sudo efibootmgr -v | head -20
+  Report those three outputs. The only real proof is the user rebooting and seeing the menu -
+  say that explicitly, and ask them to do it once before you continue to Step 3.
 
 === STEP 3 - system update ===
   sudo pacman -Syu --noconfirm
@@ -245,9 +369,11 @@ Do not run those commands yourself unless the user says so. Do not print the fil
 === STEP 10 - final report ===
 Write ~/SETUP_REPORT.md with a table: component | version | how verified | PASS/FAIL
 covering: OS, kernel, GPU + /dev/kfd, ROCm route, torch GPU test, onnxruntime, opencode +
-provider, t3code, node, java, adb, python venv, USB handoff counts, repo clone + photo restore.
-End with a "what still needs the user" list (re-login for groups, opencode.json placement,
-anything that failed).
+provider, t3code, node, java, adb, python venv, USB handoff counts, repo clone + photo restore,
+and BOOT: GRUB timeout, menuentry count, efibootmgr order, which CASE (A-E) was diagnosed and
+what was changed.
+End with a "what still needs the user" list (re-login for groups, opencode.json placement, a
+reboot to confirm the boot menu, anything that failed).
 
 Do not install Android Studio. Do not train anything. Do not modify detector code.
 Stop after the report and wait for the project prompt.
