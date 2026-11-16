@@ -1,0 +1,163 @@
+PROMPT 1 of 2 - MACHINE SETUP (CachyOS)
+=======================================
+
+Paste this into OpenCode / T3 Code on the fresh CachyOS machine, BEFORE the project prompt.
+
+You are setting up a fresh CachyOS workstation for an Android + PyTorch project, and
+restoring a handoff from a USB drive.
+
+Work step by step. After EVERY step, show the actual command output that proves it worked.
+If a step fails, report the exact error and continue with the next independent step - never
+claim success you did not observe.
+
+CRITICAL: CachyOS is Arch-based. It uses pacman/paru, NOT apt. Do not run apt, apt-get,
+dpkg, or any Debian/Ubuntu command. If you catch yourself typing apt, stop.
+
+Idempotent: before installing anything, check whether it already exists. Do not reinstall
+or overwrite user config. Do not reboot. Do not delete anything.
+
+=== STEP 0 - find and inspect the USB handoff ===
+A 32GB USB stick contains a folder named DocScanAI-handoff. Find its mount point:
+  lsblk -f
+  ls /run/media/*/ 2>/dev/null
+  findmnt -t exfat,vfat,ntfs3,ntfs -o TARGET,SOURCE,FSTYPE
+Then set a variable for the rest of this session, e.g.:
+  USB=/run/media/$USER/<LABEL>/DocScanAI-handoff
+Report the resolved path and the output of:
+  ls -R "$USB" | head -60
+  du -sh "$USB"/*
+Expected contents (verify each exists, report count + size):
+  PROMPTS/             the two prompts (this one and the project one)
+  photos/holdout42/    42 jpg + 2 json manifests
+  photos/owner110/     116 jpg + 2 json manifests
+  photos/bookspread_real/  16 jpg + manifest
+  photos/bookspread/   18 jpg + manifest
+  photos/pencil/       12 jpg + manifest
+  photos/live_room/    16 jpg
+  measurements/h48-masks/  42 .npy page masks
+  measurements/scores/     the measurement JSON files
+  measurements/traces/     h64fast (42) and h64owner (116) detector traces
+  docs/                all the run reports and plans
+  repo/DocScanAI.bundle    a git bundle with full history
+If a count does not match, say so explicitly. Then READ these three files before continuing:
+  "$USB"/README.md
+  "$USB"/docs/plans/rebuild-plan.md
+  "$USB"/docs/runs/quad-ceiling-and-extension.md
+
+=== STEP 1 - detect the system ===
+Run and report:
+  cat /etc/os-release
+  uname -r
+  lspci -nn | grep -Ei 'vga|3d|display'
+  whoami; id
+  df -h | head -20
+Report: distro, kernel, GPU model and PCI id, user, free space.
+Note which already exist: git curl wget node npm python3 pip docker adb java paru yay
+
+=== STEP 2 - system update ===
+  sudo pacman -Syu --noconfirm
+Report before/after package counts. If a kernel update happens, say so (do NOT reboot).
+
+=== STEP 3 - base packages ===
+  sudo pacman -S --needed --noconfirm base-devel git curl wget unzip zip jq \
+      htop tree rsync python python-pip nodejs npm jdk21-openjdk \
+      android-tools ntfs-3g exfatprogs fuse2 cmake clang pkgconf vulkan-tools
+Report newly installed vs already present.
+Verify: git --version, node --version, npm --version, java -version, adb --version,
+python3 --version
+
+=== STEP 4 - AUR helper (CachyOS ships paru; AUR may be disabled) ===
+  command -v paru; command -v yay
+If neither exists: sudo pacman -S --needed --noconfirm paru
+Then TEST AUR access actually works:
+  paru -Si t3code-bin
+If AUR is disabled, find and report the setting, and ask the user before changing it.
+Do not silently edit pacman.conf.
+
+=== STEP 5 - OpenCode (install FIRST - T3 Code hosts it) ===
+  sudo pacman -S --needed --noconfirm opencode
+If that package does not exist in the repos:
+  curl -fsSL https://opencode.ai/v2/install | bash
+Fallbacks in order: paru -S opencode-beta  |  npm install -g @opencode/cli
+Verify: opencode --version   (must print a version)
+
+=== STEP 6 - T3 Code ===
+  paru -S --needed --noconfirm t3code-bin
+Verify:
+  command -v t3code || ls /usr/bin | grep -i t3
+  ls /usr/share/applications | grep -i t3
+Report how the user launches it (command name and/or menu entry).
+
+=== STEP 7 - GPU access for compute ===
+  ls -l /dev/kfd /dev/dri/renderD* 2>&1
+  groups
+  sudo usermod -aG video "$USER"
+  sudo usermod -aG render "$USER"
+Report that the group change needs a re-login (do NOT reboot).
+
+=== STEP 8 - ROCm (the user has run ROCm on this card before) ===
+ROUTE A - native packages:
+  sudo pacman -S --needed --noconfirm rocm-hip-sdk rocm-opencl-runtime
+  /opt/rocm/bin/rocminfo | head -40
+  /opt/rocm/bin/hipconfig --version
+Check the ISA list contains gfx1201 (RX 9070 XT / RDNA4). If it does not, go to Route B.
+
+ROUTE B - Docker with AMD's official PyTorch image:
+  sudo pacman -S --needed --noconfirm docker docker-compose
+  sudo systemctl enable --now docker
+  sudo usermod -aG docker "$USER"
+  sudo docker pull rocm/pytorch:rocm7.14_ubuntu24.04_py3.11_pytorch_release_2.10.0
+  sudo docker run --rm --device=/dev/kfd --device=/dev/dri \
+      -e PYTORCH_TUNABLEOP_ENABLED=1 \
+      rocm/pytorch:rocm7.14_ubuntu24.04_py3.11_pytorch_release_2.10.0 \
+      python -c "import torch; print(torch.__version__); print('cuda available:', torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'NO GPU')"
+Report which route worked. "cuda available: True" is the only acceptable proof.
+
+=== STEP 9 - Python ML environment ===
+  python3 -m venv ~/mlenv
+  source ~/mlenv/bin/activate
+  pip install --upgrade pip
+  pip install numpy opencv-python-headless pillow onnxruntime
+Verify:
+  python -c "import onnxruntime as o; print(o.__version__, o.get_available_providers())"
+  python -c "import cv2; print(cv2.__version__)"
+Report the ONNX Runtime providers list - the real deployment target is ONNX on Android,
+so also confirm a model can be loaded and run on CPU here.
+
+=== STEP 10 - restore the project from the USB ===
+Clone from the bundle (full history, works offline):
+  mkdir -p ~/proj && cd ~/proj
+  git clone "$USB"/repo/DocScanAI.bundle DocScanAI
+  cd DocScanAI
+  git log --oneline -5
+  git remote add origin https://github.com/kuzeyt32/DocScanAI.git  # optional, for pushing
+  git fetch origin 2>/dev/null && git status -sb | head -2
+Then restore the photos (they are gitignored, so the clone does NOT have them):
+  for s in holdout42 owner110 bookspread_real bookspread pencil live_room; do
+    mkdir -p "app/src/androidTest/assets/$s"
+    cp -a "$USB"/photos/"$s"/. "app/src/androidTest/assets/$s"/
+  done
+  for s in holdout42 owner110 bookspread_real bookspread pencil live_room; do
+    printf '%-16s %s jpg\n' "$s" "$(ls app/src/androidTest/assets/$s/*.jpg 2>/dev/null | wc -l)"
+  done
+  # must print: holdout42 42, owner110 116, bookspread_real 16, bookspread 18, pencil 12, live_room 16
+Restore the measurements (so nothing has to be recomputed):
+  mkdir -p tooling/out/h48/masks tooling/out/h50
+  cp "$USB"/measurements/h48-masks/*.npy   tooling/out/h48/masks/
+  cp "$USB"/measurements/scores/*.json     tooling/out/h50/ 2>/dev/null
+  mkdir -p tooling/out/h39
+  cp -a "$USB"/measurements/traces/h64fast  tooling/out/h39/ 2>/dev/null
+  cp -a "$USB"/measurements/traces/h64owner tooling/out/h39/ 2>/dev/null
+Verify counts again and report.
+Then check the build toolchain works:
+  ./gradlew --version
+  ls app/src/main/java/com/docscanai/capture/OpenCvQuadPageDetector.kt
+
+=== STEP 11 - final report ===
+Write ~/SETUP_REPORT.md with a table: component | version | how verified | PASS/FAIL
+covering: OS, kernel, GPU + /dev/kfd, ROCm route, torch GPU test, onnxruntime, opencode,
+t3code, node, java, adb, python venv, USB handoff counts, repo clone + photo restore.
+End with a "what still needs the user" list (re-login for groups, anything failed).
+
+Do not install Android Studio. Do not train anything. Do not modify detector code.
+Stop after the report and wait for the project prompt.

@@ -3,8 +3,22 @@
 These two prompts were written on the Windows machine and would otherwise exist only in a chat
 session that does not transfer to Linux. Committed here so they survive the OS switch.
 
-**Order:** run the SETUP prompt first (CachyOS + OpenCode + T3 Code + ROCm + mounts), then the
-PROJECT prompt when the photos are on `D:` or `E:` and the repo is cloned.
+**Canonical copies** (kept identical to the USB stick):
+
+* `docs/plans/prompts/01-setup-cachyos.txt`
+* `docs/plans/prompts/02-rebuild-project.txt`
+
+**Order:** run the SETUP prompt first (CachyOS + OpenCode + T3 Code + ROCm + USB restore), then
+the PROJECT prompt when the photos are restored and the repo is cloned.
+
+The setup prompt also reads the handoff from a 32 GB USB stick
+(`DocScanAI-handoff/`) that carries the private photos, the page masks, the detector traces and a
+full git bundle — see `docs/plans/usb-handoff-README.md` for that stick's index.
+
+> **Gap to correct:** earlier work evaluated only on `holdout42` and `owner110`.
+> `bookspread_real` (16 real open-book spread photos — exactly the failure mode) and the
+> `pencil` / `live_room` sets were never scored. All six sets are on the stick and the project
+> prompt requires them in P0.
 
 Context that makes these prompts make sense is in:
 
@@ -17,6 +31,10 @@ Context that makes these prompts make sense is in:
 ---
 
 ## PROMPT 1 - machine setup (paste into the fresh CachyOS agent)
+
+Canonical file: `docs/plans/prompts/01-setup-cachyos.txt` (also `PROMPTS/` on the USB).
+It additionally resolves the USB handoff, restores all six photo sets and the measurements,
+and verifies the GPU before the project prompt is used.
 
 ```
 You are setting up a fresh CachyOS workstation for an Android + PyTorch project.

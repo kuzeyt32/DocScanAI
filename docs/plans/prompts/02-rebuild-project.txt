@@ -1,0 +1,141 @@
+PROMPT 2 of 2 - PROJECT REBUILD
+===============================
+
+Paste this AFTER the setup prompt has completed and the photos are restored.
+
+You are taking over a working Android document-scanner project (DocScanAI) at the point where
+we have decided the detection pipeline must be rebuilt. Do NOT start by coding. Read first,
+verify the environment, then follow the phases.
+
+FIRST, read these (they are in the repo and also on the USB handoff):
+  docs/plans/rebuild-plan.md
+  docs/runs/0.3.17-detector-fixes.md
+  docs/runs/0.3.17-repair-disabled.md
+  docs/runs/0.3.18-what-remains.md
+  docs/runs/quad-ceiling-and-extension.md
+  tooling/README.md
+
+## Context
+
+Repo: DocScanAI (Kotlin/Android, OpenCV, ONNX Runtime, models loaded at runtime).
+Detection today: DocAligner LCNet100 corner model + classical OpenCV fallbacks + a stack of
+hand-written gates. It is a SINGLE-DOCUMENT corner detector.
+
+What we have already measured - do NOT re-derive these:
+- It cannot handle two-page spreads reliably. Its own paper (arXiv 2306.05749, Appendix F)
+  states: orientation must be upright, "Incomplete" (partly out-of-frame) documents are
+  unsupported, large rotations are excluded. These map exactly onto observed failures.
+- 6 of 42 holdout photos are "one-leaf locks" (quad covers one leaf of a two-page target);
+  9 of 94 on the owner set. So it is a general weakness, ~10-14% of captures.
+- The best possible quad for those photos scores median IoU 0.98, and 40 of 42 are reachable
+  at IoU >= 0.85 while the detector reaches 23. The loss is quad CHOICE, not quad SHAPE.
+  Do NOT build polygonal-crop machinery to fix coverage; it is not the issue.
+- Rejected with measurements, do not retry:
+  * luma-based edge extension: fired 29, helped 9, hurt 19 (white page on white table)
+  * M-LSD merge-repair splitting: damaged 36 of 38 photos it touched; currently disabled
+  * "is there paper outside the quad" panel test: does not separate panel from page
+- The SAM-based measuring mask over-covers (it includes the page fanned out BEHIND the front
+  one) on ~5 of 16 short cases. It is a pre-annotation tool, NOT ground truth.
+
+## Photo sets available (use ALL of them, not a subset)
+
+  holdout42        42 real, never tuned on, has SAM masks + full measurements
+  owner110        116 real, the regression set, has an oracle manifest
+  bookspread_real  16 real open-book spread photos  <-- directly the failure case
+  pencil           12 real handwriting photos
+  live_room        16 real room-scene photos
+  bookspread       18 SYNTHETIC book spreads (reference only - never a test set)
+
+The previous round of work evaluated on holdout42 and owner110 only. bookspread_real is real
+spread photography and must be part of evaluation. Do not treat any synthetic set as a test.
+
+## Decision already made
+
+Replace the hypothesis: instead of "a page is 4 corners", predict PAGE INSTANCES (masks),
+then fit a quad or mesh.
+
+  PREVIEW  tiny net (256 grayscale) -> coarse instances + Kalman filter + IMU gate
+  CAPTURE  full-res instance segmenter (the real model) -> decision layer:
+             drop instances cut by the frame (a partly-seen leaf is not the target)
+             rank by area / centre / ink
+             two adjacent similar instances -> SPREAD (union of both)
+             one dominant -> SINGLE PAGE
+           -> contour -> quad fit -> subpixel edge refinement (already exists, keep it)
+  WARP     homography for flat pages, mesh for curved
+
+Rationale from industry primary sources: Scanner Pro runs a small keypoint net on every frame
+and a heavier segmentation model at capture; Genius Scan used MobileNetV2 at 96x96 then
+refined the quad classically (51% -> 75% -> 85%); Adobe uses a 64x64 cascade at 557 fps and
+labels "two pages" explicitly. Genius Scan at 85% still lists "better manage the detection of
+book pages" as FUTURE work - this is genuinely the hard case.
+
+Model to train: small 3-class instance segmenter (page / gutter / hand), MobileNetV3 backbone,
+~5M params, exported to ONNX. Not a foundation model.
+
+## Hard rules
+
+1. NEVER tune on a sealed evaluation split. Split the user's photos ~60/40 train/eval by SET,
+   and keep a sealed half that is opened exactly once at the end. Never inspect it earlier.
+2. bookspread_real and holdout42 are evaluation material. Do not tune on them.
+3. A change ships only if it improves on BOTH an unseen set and the regression set.
+4. Photos are private: never commit or upload them. Manifests only. They are gitignored.
+5. Every claimed number must come from a script in the repo. No script, no number.
+6. Report regressions explicitly, photo by photo. No means hiding failures.
+
+## Phases
+
+P0 instrument (before any model work)
+  - Rotation harness: replay the existing holdout42 photos at 0/90/180/270 degrees through
+    the UNCHANGED detector. Quantify the rotation dependence the user reported.
+  - Build INSTANCE-level ground truth (each leaf its own instance), replacing the over-covering
+    SAM mask as the referee. SAM may propose; a human decides.
+  - Evaluate bookspread_real with the same harness - it was never scored before.
+  - Gate: rotation effect quantified; phantom failures removed from the baseline; a clean
+    before-number on all real sets.
+
+P1 synthetic factory - only for classes real photos cannot cover
+  - Inputs: clean page images composited into single page / two-page spread with gutter and
+    cylinder curvature / panels lying on a page / frame-cut pages / random 90-degree rotations.
+  - Use REAL background plates and REAL shading maps photographed by the user, plus the
+    measured noise, blur and JPEG quality of the user's camera.
+  - Synthetic supplies LABELS (topology, rotation, truncation), never APPEARANCE.
+  - Deliberately soften composite edges (real page boundaries are 2-4 px soft).
+  - Track a real-vs-synthetic classifier accuracy and a synthetic-only -> real transfer test.
+    If transfer collapses, drop synthetic and say so.
+  - Gate: visual audit - synthetic must be hard to mistake for the user's real photos.
+
+P2 train the segmenter
+  - REAL-ONLY BASELINE FIRST (~100 train photos). Then add synthetic only for starved classes
+    (rotated spreads, frame-cut pages, two-leaf topology - where real examples number < 20).
+  - Heavy augmentation including random 90-degree rotation (Adobe does this because phone
+    orientation metadata is unreliable).
+  - Gate: on held-out real photos, instance IoU >= 0.90 median; 1-vs-2 leaf decision >= 95%.
+
+P3 pipeline v2
+  - Decision layer as pure logic, unit-testable offline. Kalman + IMU. Two-stage preview.
+    Mesh warp for curved pages.
+  - Optional only if needed: pseudo-sequences (random small homography + brightness jitter)
+    with N frames as input channels. Do NOT collect real video for this.
+  - Gate: >= 15 percentage points absolute gain; zero regressions on any existing set.
+
+P4 honest evaluation
+  - Freeze code, run ONCE on the sealed set, publish that number even if it is lower.
+
+## Environment to verify first
+
+Linux (CachyOS, Arch-based), AMD RX 9070 XT (gfx1201, 16GB), Ryzen 7 7800X3D.
+- Prefer AMD's Docker image: rocm/pytorch, PyTorch 2.10+
+- Verify torch.cuda.is_available() == True and that a real training step runs
+- Verify torch.onnx.export of the intended architecture, and that the exported model loads in
+  onnxruntime with the CPU provider (the actual Android deployment target)
+- Report MEASURED throughput (images/sec), then estimate training time from it. Do not quote
+  a time estimate that is not derived from a measured number.
+
+## Your first response
+
+Do not write model code yet. Reply with:
+1. what you verified about the environment, with command output
+2. a concrete P0 plan with the exact scripts you will write and their filenames
+3. any place where these instructions are wrong or under-specified
+
+Then wait for confirmation before starting P0.
