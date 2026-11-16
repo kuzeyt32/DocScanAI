@@ -46,7 +46,7 @@ If a count does not match, say so explicitly.
 
 Also note: at the ROOT of the stick (next to DocScanAI-handoff/) there is an opencode.json
 containing the user's provider configuration and API keys. Do NOT copy it anywhere yet, do NOT
-print its contents, and do NOT commit it. Step 7 tells the user how to place it.
+print its contents, and do NOT commit it. Step 9 tells the user how to place it.
 
 Then READ these three files before continuing:
   "$USB"/README.md
