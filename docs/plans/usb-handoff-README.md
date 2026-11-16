@@ -3,8 +3,11 @@
 Everything needed to continue this project on the CachyOS machine, offline.
 Created from the Windows machine on 2026-11-16.
 
-**Start here:** read this file, then `PROMPTS/01-setup-cachyos.txt`.
-Paste prompt 1 into the agent first. Paste `PROMPTS/02-rebuild-project.txt` after it completes.
+**Start here:** `AFTER-INSTALL.txt` — the plain-language, no-agent version: install OpenCode and
+T3 Code by hand (including the no-yay routes), place your `opencode.json`, then paste prompt 1.
+
+Order: `AFTER-INSTALL.txt` (steps 1–5 are yours) → `PROMPTS/01-setup-cachyos.txt` →
+`PROMPTS/02-rebuild-project.txt`.
 
 ---
 
@@ -26,8 +29,13 @@ This stick holds three things that are **not** on GitHub:
 
 | file | when to use |
 |---|---|
-| `01-setup-cachyos.txt` | first, after the user has installed CachyOS + OpenCode + T3 Code by hand and placed `opencode.json`. Verifies those, then installs the rest, sets up ROCm **and fixes it if broken**, **repairs a broken GRUB boot menu (Step 2B)**, restores this handoff. |
+| `01-setup-cachyos.txt` | first, after the user has installed CachyOS + OpenCode + T3 Code by hand and placed `opencode.json`. Verifies those, then installs the rest, sets up ROCm **and fixes it if broken**, checks the new boot loader (Step 2B), restores this handoff. |
 | `02-rebuild-project.txt` | after setup passes. The rebuild brief: context, decisions already made, hard rules, phases P0–P4. |
+
+`AFTER-INSTALL.txt` (stick root) is the human version of the first half: installing OpenCode,
+placing `opencode.json`, and getting T3 Code without an AUR helper (`yay`/`paru` not required —
+AppImage or the `t3` script both work). It needs no agent, so it survives even if everything
+else goes wrong.
 
 Prompt 1 is **verify-only** for OpenCode and T3 Code — it does not install, configure or repair
 them, and never touches `~/.config/opencode/`. The user's `opencode.json` sits at the root of
@@ -158,5 +166,6 @@ wrong quad, which is why the next step replaces "four corners" with "page instan
 - [ ] 42 `.npy` masks in `measurements/h48-masks/`
 - [ ] `repo/DocScanAI.bundle` present and ~109 MB
 - [ ] both prompts in `PROMPTS/`
+- [ ] `AFTER-INSTALL.txt` at the stick root
 
 The stick mounts read-only on Linux if Windows left it dirty — eject safely from Windows first.

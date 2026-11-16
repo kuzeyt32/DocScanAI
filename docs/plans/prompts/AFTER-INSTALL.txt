@@ -1,0 +1,188 @@
+WHAT TO DO AFTER INSTALLING CACHYOS
+===================================
+Plain instructions, no agent needed. Do these in order. Every step has a CHECK - if the check
+fails, jump to the TROUBLESHOOTING table at the bottom instead of continuing.
+
+You need: the USB stick, internet on the new machine, and 15 minutes.
+
+Total: 6 steps.
+
+
+-------------------------------------------------------------------------------
+STEP 1 - CACHYOS IS INSTALLED AND BOOTS
+-------------------------------------------------------------------------------
+You are at the CachyOS desktop. You do NOT need to touch the BIOS menu any more: the installer
+wrote a fresh GRUB and a new EFI entry, which is what fixes the old "unknown filesystem" problem.
+
+CHECK
+  Open a terminal. Then:
+      sudo efibootmgr | grep -i bootorder
+  You should see a CachyOS entry, and it should be the first number after "BootOrder:".
+  If CachyOS is NOT first, see TROUBLESHOOTING row "BootOrder".
+
+
+-------------------------------------------------------------------------------
+STEP 2 - OPENCODE  (install this FIRST - T3 Code is useless without it)
+-------------------------------------------------------------------------------
+Run ONE of these. Route A is the official one.
+
+ROUTE A - official script (recommended)
+      curl -fsSL https://opencode.ai/v2/install | bash
+
+ROUTE B - if you prefer npm (node must be installed)
+      sudo pacman -S --needed nodejs npm
+      npm install -g @opencode/cli
+
+ROUTE C - via AUR, only if you have an AUR helper already
+      paru -S opencode-beta
+
+After it finishes, the binary may be in ~/.local/bin. Make sure that is on your PATH:
+      echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+      source ~/.bashrc
+
+CHECK
+      opencode --version
+  It must print a version number. If it says "command not found", PATH is the problem, not the
+  install - run the two PATH lines above and try again.
+
+
+-------------------------------------------------------------------------------
+STEP 3 - YOUR opencode.json  (the file with your API keys)
+-------------------------------------------------------------------------------
+It is at the ROOT of the USB stick, next to the DocScanAI-handoff folder.
+
+      mkdir -p ~/.config/opencode
+      cp /run/media/$USER/<STICK-LABEL>/opencode.json ~/.config/opencode/opencode.json
+      chmod 600 ~/.config/opencode/opencode.json
+
+  Replace <STICK-LABEL> with what you see under /run/media/$USER/  (ls /run/media/$USER/).
+
+chmod 600 matters: that file contains live API keys in plain text. Keep it readable by you only,
+and delete it from the USB stick once you no longer need it.
+
+CHECK
+      opencode models
+  Your providers (evren, and whatever else is in the file) must show up. If the list is empty or
+  it errors, the json is not being read - see TROUBLESHOOTING row "opencode models".
+  Do not continue until this lists your models.
+
+
+-------------------------------------------------------------------------------
+STEP 4 - T3 CODE  (this is the part with no yay)
+-------------------------------------------------------------------------------
+T3 Code lives in the AUR. CachyOS usually ships `paru` so you rarely need yay - but there are
+three routes, ordered by how little they can go wrong.
+
+ROUTE A - AppImage. No AUR, no helper, nothing to build. Use this if unsure.
+  1. Open https://github.com/pingdotgg/t3code/releases in a browser
+  2. Download the file ending in .AppImage for x86_64  (e.g. T3-Code-*.AppImage)
+  3. Then in a terminal:
+        sudo pacman -S --needed fuse2
+        cd ~/Downloads
+        chmod +x T3-Code-*.AppImage
+        ./T3-Code-*.AppImage
+  4. To keep it around, move it somewhere permanent:
+        mkdir -p ~/Applications
+        mv T3-Code-*.AppImage ~/Applications/T3-Code.AppImage
+     Then run it later with:  ~/Applications/T3-Code.AppImage
+     (This does not add a menu entry. That is normal for an AppImage. If you want one, ask the
+     agent to add a .desktop file.)
+
+ROUTE B - paru, if it exists on your system
+      paru -S t3code-bin
+  CHECK first that paru is there:  paru --version
+  If paru is missing, either use Route A or Route C - do NOT go hunting for yay, you do not
+  need it.
+
+ROUTE C - the t3 command line, which also gives you a web UI
+      curl -fsSL https://t3.codes/install.sh | sh
+  This installs a `t3` command to ~/.local/bin. Start it with:
+      t3
+  It starts the T3 server and prints a local web address you open in your browser. This is the
+  same thing as the desktop app, just in a tab.
+
+CHECK
+  Route A: the app window opened.
+  Route B: `t3code` runs (or a T3 Code entry appears in your application menu).
+  Route C: `t3 --version` prints a version, and `t3` prints a URL.
+
+
+-------------------------------------------------------------------------------
+STEP 5 - START T3 CODE AND ATTACH OPENCODE
+-------------------------------------------------------------------------------
+1. Start T3 Code (AppImage, menu entry, or `t3`).
+2. When it asks for a provider/agent, choose OpenCode.
+3. Point it at the folder you will work in. Before the repo is cloned, just use your home
+   folder or any empty folder - the setup prompt clones the project for you.
+
+CHECK
+  Start a session and send a trivial message like "say hello". If it answers, the wiring is
+  correct. If T3 Code says no provider is available, OpenCode is not being found - see
+  TROUBLESHOOTING row "T3 no provider".
+
+
+-------------------------------------------------------------------------------
+STEP 6 - HAND OVER TO THE AGENT
+-------------------------------------------------------------------------------
+In the T3 Code session, paste the contents of:
+    DocScanAI-handoff/PROMPTS/01-setup-cachyos.txt
+
+That prompt finds the USB, installs the system packages, sets up ROCm and fixes it if broken,
+restores the photos and measurements, clones the repo from the bundle, and writes
+~/SETUP_REPORT.md.
+
+When it stops, check the report. The two lines that matter:
+  - "cuda available: True"   (GPU works - training is possible)
+  - the GFLOP/s number       (proves the GPU actually computes, not just that it is listed)
+
+Then paste:
+    DocScanAI-handoff/PROMPTS/02-rebuild-project.txt
+
+That one starts the actual rebuild work (P0: rotation harness, instance ground truth).
+
+
+-------------------------------------------------------------------------------
+TROUBLESHOOTING
+-------------------------------------------------------------------------------
+"BootOrder" - CachyOS is not the first boot entry
+    sudo efibootmgr -v                         # read the real 4-digit numbers
+    sudo efibootmgr -o 0003,0000,0001          # put CachyOS first, keep the rest
+  Replace the numbers with the ones you actually see. Do not delete entries you do not
+  understand; the Windows Boot Manager entry, if present, must stay.
+
+"opencode: command not found" right after installing
+  PATH. Run:
+      export PATH="$HOME/.local/bin:$PATH"
+  and add that line to ~/.bashrc so it survives a reboot.
+
+"opencode models" is empty / errors
+  1. Is the file in the right place?   ls -l ~/.config/opencode/opencode.json
+  2. Is it valid JSON?                 jq . ~/.config/opencode/opencode.json > /dev/null && echo OK
+  3. Does the provider answer at all?  curl -s https://evren-llmapi.ssyz.org.tr/v1/models | head
+  If 1 and 2 pass, the problem is the key or the network, not OpenCode.
+
+T3 Code: no provider / "OpenCode not found"
+  T3 Code runs OpenCode as a subprocess, so OpenCode must be on the PATH of whatever launches
+  T3 Code. If you launched T3 Code from a desktop icon before fixing PATH, log out and back in,
+  or launch it from a terminal that has ~/.local/bin on PATH.
+
+AppImage does not start, "fuse" error
+      sudo pacman -S --needed fuse2
+  If it still fails, run it unpacked (no fuse needed):
+      ./T3-Code-*.AppImage --appimage-extract-and-run
+
+Nothing here worked
+  Do not guess your way through boot or GPU problems - they are the two things that can leave
+  you with a broken machine. Stop, and paste the exact error into the agent session (or into
+  chat with me). Everything up to Step 4 is reversible; Steps 5-6 are not risky at all.
+
+
+-------------------------------------------------------------------------------
+CHECKLIST  (tick these before Step 6)
+-------------------------------------------------------------------------------
+[ ] CachyOS boots without touching the BIOS menu, and it is first in BootOrder
+[ ] `opencode --version` prints a version
+[ ] ~/.config/opencode/opencode.json exists, is chmod 600, and `opencode models` lists providers
+[ ] T3 Code launches (AppImage, t3code, or `t3`)
+[ ] T3 Code shows OpenCode as a provider and answers a test message
+[ ] You can see DocScanAI-handoff on the stick
